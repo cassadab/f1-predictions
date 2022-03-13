@@ -2,10 +2,14 @@
     "discord": "Rengen#6382",
     "name": "goobs",
     "country": "US",
-    "dnf": 1,
-    "overtake": 2,
+    "dnf": 19,
+    "overtake": 4,
     "rankings": [
+        4,
+        2,
         1,
-        2
+        19,
+        12,
+        15
     ]
 }
