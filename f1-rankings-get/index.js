@@ -5,7 +5,6 @@ exports.handler = async (event) => {
     console.log(JSON.stringify(event));
 
     const discordId = decodeURIComponent(event.pathParameters.discordId);
-    console.log(`Discord ID: ${discordId}`);
 
     const prediction = await getPrediction(discordId);
     let body = {};
@@ -35,6 +34,7 @@ exports.handler = async (event) => {
 };
 
 async function getPrediction(discordId) {
+    console.log(`Obtaining prediction record for ${discordId}`);
     const params = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
@@ -47,6 +47,7 @@ async function getPrediction(discordId) {
     }
     const result = await rdsDataService.executeStatement(params).promise();
     if (!result.records.length > 0) {
+        console.log(`No prediction found for ${discordId}`);
         return null;
     }
     return parsePrediction(result.records[0]);
@@ -63,6 +64,7 @@ function parsePrediction(record) {
 }
 
 async function getRankings(discordId) {
+    console.log(`Obtaining rankings for ${discordId}`);
     const sqlParams = getRankingsSQLParams(discordId);
     const result = await rdsDataService.executeStatement(sqlParams).promise();
     return result.records.map((record) => parseRanking(record));
@@ -97,6 +99,7 @@ function getRankingsSQLParams(discord) {
 }
 
 async function getSpecialDrivers(dnf, overtake) {
+    console.log(`Obtaining special selections for ${discordId}`);
     const params = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
