@@ -12,9 +12,12 @@ exports.handler = async (event) => {
 
     if (prediction) {
         const rankings = await getRankings(discordId);
-
+        const specialDrivers = await getSpecialDrivers(prediction.dnf, prediction.overtake);
+        
         body = {
             ...prediction,
+            dnf: specialDrivers.dnf,
+            overtake: specialDrivers.overtake,
             rankings,
         };
     }
@@ -91,4 +94,36 @@ function getRankingsSQLParams(discord) {
             { name: 'discord', value: { stringValue: discord } },
         ]
     }
+}
+
+async function getSpecialDrivers(dnf, overtake) {
+    const params = {
+        secretArn: process.env.SECRET_ARN,
+        resourceArn: process.env.CLUSTER_ARN,
+        database: 'f1_predictions',
+        sql: `SELECT * FROM drivers
+            WHERE id in (:dnf, :overtake)`,
+        parameters: [
+            { name: 'dnf', value: { longValue: dnf } },
+            { name: 'overtake', value: { longValue: overtake } },
+        ]
+    }
+    const result = await rdsDataService.executeStatement(params).promise();
+    const drivers = result.records.map((record) => parseDriver(record));
+    const overtakeDriver = drivers.find((driver) => driver.id = overtake);
+    const dnfDriver = drivers.find((driver) => driver.id = dnf);
+    return {
+        overtake: overtakeDriver,
+        dnf: dnfDriver,
+    }
+}
+
+function parseDriver(record) {
+    return {
+        'id': record[0].longValue,
+        'name': record[1].stringValue,
+        'team': record[2].stringValue,
+        'rank': record[3].longValue,
+        'country': record[4].stringValue,
+    };
 }
