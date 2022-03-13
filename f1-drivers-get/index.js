@@ -17,7 +17,7 @@ exports.handler = async (event) => {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,GET"
         },
-        body: parsedRecords,
+        body: JSON.stringify(parsedRecords),
     };
     
     return response;
