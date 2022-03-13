@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const rdsDataService = new AWS.RDSDataService();
+const DATABASE_NAME = 'f1_predictions';
 
 exports.handler = async (event) => {
     const body = JSON.parse(event.body);
@@ -8,7 +9,7 @@ exports.handler = async (event) => {
     const transaction = await rdsDataService.beginTransaction({
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
     }).promise();
 
     if (overwrite) {
@@ -45,15 +46,16 @@ async function insertPrediction(body, transactionId) {
     await rdsDataService.executeStatement({
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         transactionId: transactionId,
-        sql: 'INSERT INTO predictions (discord,name,country,dnf,overtake) VALUES(:discord,:name,:country,:dnf,:overtake)',
+        sql: 'INSERT INTO predictions (discord,name,country,dnf,overtake,score) VALUES(:discord,:name,:country,:dnf,:overtake, :score)',
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } },
             { name: 'name', value: { stringValue: body.name } },
             { name: 'country', value: { stringValue: body.country } },
             { name: 'dnf', value: { longValue: body.dnf } },
             { name: 'overtake', value: { longValue: body.overtake } },
+            { name: 'score', value: { longValue: 0 } },
         ]
     }).promise();
 }
@@ -65,7 +67,7 @@ function insertRankings(body, transactionId) {
         return rdsDataService.executeStatement({
             secretArn: process.env.SECRET_ARN,
             resourceArn: process.env.CLUSTER_ARN,
-            database: 'f1_predictions',
+            database: DATABASE_NAME,
             transactionId,
             sql: 'INSERT INTO rankings (prediction_id,driver,rank) VALUES(:prediction_id,:driver,:rank)',
             parameters: [
@@ -82,7 +84,7 @@ async function predictionExists(body) {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
         sql: 'SELECT discord from predictions WHERE discord=:discord',
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } }
         ]
@@ -99,7 +101,7 @@ async function removeRankings(body, transactionId) {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
         sql: 'DELETE FROM rankings WHERE prediction_id=:discord',
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         transactionId: transactionId,
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } }
@@ -113,7 +115,7 @@ function updatePrediction(body, transactionId) {
     return rdsDataService.executeStatement({
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         transactionId,
         sql: 'UPDATE predictions SET dnf=:dnf, overtake=:overtake WHERE discord=:discord',
         parameters: [

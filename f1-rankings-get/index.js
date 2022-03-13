@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const rdsDataService = new AWS.RDSDataService();
+const DATABASE_NAME = 'f1_predictions';
 
 exports.handler = async (event) => {
     console.log(JSON.stringify(event));
@@ -38,7 +39,7 @@ async function getPrediction(discordId) {
     const params = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         sql: `SELECT * FROM predictions
             WHERE discord=:discord`,
         parameters: [
@@ -85,7 +86,7 @@ function getRankingsSQLParams(discord) {
     return {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         sql: `SELECT r.rank as prediction_rank, r.driver, d.name, d.team, d.rank, d.country 
             FROM rankings r
             INNER JOIN drivers d
@@ -103,7 +104,7 @@ async function getSpecialDrivers(dnf, overtake) {
     const params = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
         sql: `SELECT * FROM drivers
             WHERE id in (:dnf, :overtake)`,
         parameters: [

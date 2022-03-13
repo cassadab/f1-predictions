@@ -1,12 +1,13 @@
 const AWS = require('aws-sdk');
 const rdsDataService = new AWS.RDSDataService();
+const DATABASE_NAME = 'f1_predictions';
 
 exports.handler = async (event) => {
     const sqlParams = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
         sql: 'select * from drivers',
-        database: 'f1_predictions',
+        database: DATABASE_NAME,
     };
     const result = await rdsDataService.executeStatement(sqlParams).promise();
     
