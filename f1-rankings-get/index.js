@@ -12,8 +12,9 @@ exports.handler = async (event) => {
 
     if (prediction) {
         const rankings = await getRankings(discordId);
+        console.log(`Obtaining special selections for ${discordId}`);
         const specialDrivers = await getSpecialDrivers(prediction.dnf, prediction.overtake);
-        
+
         body = {
             ...prediction,
             dnf: specialDrivers.dnf,
@@ -100,7 +101,6 @@ function getRankingsSQLParams(discord) {
 }
 
 async function getSpecialDrivers(dnf, overtake) {
-    console.log(`Obtaining special selections for ${discordId}`);
     const params = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
