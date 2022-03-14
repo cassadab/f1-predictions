@@ -1,0 +1,15 @@
+{
+  "name": "f1-update-scores",
+  "version": "1.0.0",
+  "description": "Batch update prediction scores",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "package": "rm dist -rf && mkdir dist && tar -a -c -f dist/dist.zip index.js node_modules"
+  },
+  "author": "Brady Cassada",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.1"
+  }
+}

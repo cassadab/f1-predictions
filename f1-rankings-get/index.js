@@ -60,8 +60,8 @@ function parsePrediction(record) {
         'discord_id': record[0].stringValue,
         'name': record[1].stringValue,
         'country': record[2].stringValue,
-        'dnf': record[3].longValue,
-        'overtake': record[4].longValue,
+        'dnf': record[3].stringValue,
+        'overtake': record[4].stringValue,
     };
 }
 
@@ -75,7 +75,7 @@ async function getRankings(discordId) {
 function parseRanking(record) {
     return {
         'prediction_rank': record[0].longValue,
-        'driver_id': record[1].longValue,
+        'driver_id': record[1].stringValue,
         'name': record[2].stringValue,
         'team': record[3].stringValue,
         'rank': record[4].longValue || null,
@@ -91,7 +91,7 @@ function getRankingsSQLParams(discord) {
         sql: `SELECT r.rank as prediction_rank, r.driver, d.name, d.team, d.rank, d.country 
             FROM rankings r
             INNER JOIN drivers d
-            ON r.driver=d.id
+            ON r.driver=d.code
             WHERE prediction_id=:discord
             ORDER BY prediction_rank;`,
         parameters: [
@@ -106,16 +106,16 @@ async function getSpecialDrivers(dnf, overtake) {
         resourceArn: process.env.CLUSTER_ARN,
         database: DATABASE_NAME,
         sql: `SELECT * FROM drivers
-            WHERE id in (:dnf, :overtake)`,
+            WHERE code in (:dnf, :overtake)`,
         parameters: [
-            { name: 'dnf', value: { longValue: dnf } },
-            { name: 'overtake', value: { longValue: overtake } },
+            { name: 'dnf', value: { stringValue: dnf } },
+            { name: 'overtake', value: { stringValue: overtake } },
         ]
     }
     const result = await rdsDataService.executeStatement(params).promise();
     const drivers = result.records.map((record) => parseDriver(record));
-    const overtakeDriver = drivers.find((driver) => driver.id = overtake);
-    const dnfDriver = drivers.find((driver) => driver.id = dnf);
+    const overtakeDriver = drivers.find((driver) => driver.code = overtake);
+    const dnfDriver = drivers.find((driver) => driver.code = dnf);
     return {
         overtake: overtakeDriver,
         dnf: dnfDriver,
@@ -124,7 +124,7 @@ async function getSpecialDrivers(dnf, overtake) {
 
 function parseDriver(record) {
     return {
-        'id': record[0].longValue,
+        'code': record[0].stringValue,
         'name': record[1].stringValue,
         'team': record[2].stringValue,
         'rank': record[3].longValue,

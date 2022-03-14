@@ -53,8 +53,8 @@ async function insertPrediction(body, transactionId) {
             { name: 'discord', value: { stringValue: body.discord } },
             { name: 'name', value: { stringValue: body.name } },
             { name: 'country', value: { stringValue: body.country } },
-            { name: 'dnf', value: { longValue: body.dnf } },
-            { name: 'overtake', value: { longValue: body.overtake } },
+            { name: 'dnf', value: { stringValue: body.dnf } },
+            { name: 'overtake', value: { stringValue: body.overtake } },
             { name: 'score', value: { longValue: 0 } },
         ]
     }).promise();
@@ -72,7 +72,7 @@ function insertRankings(body, transactionId) {
             sql: 'INSERT INTO rankings (prediction_id,driver,rank) VALUES(:prediction_id,:driver,:rank)',
             parameters: [
                 { name: 'prediction_id', value: { stringValue: body.discord } },
-                { name: 'driver', value: { longValue: ranking } },
+                { name: 'driver', value: { stringValue: ranking } },
                 { name: 'rank', value: { longValue: index + 1 } },
             ]
         }).promise();
@@ -120,8 +120,8 @@ function updatePrediction(body, transactionId) {
         sql: 'UPDATE predictions SET dnf=:dnf, overtake=:overtake WHERE discord=:discord',
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } },
-            { name: 'dnf', value: { longValue: body.dnf } },
-            { name: 'overtake', value: { longValue: body.overtake } },
+            { name: 'dnf', value: { stringValue: body.dnf } },
+            { name: 'overtake', value: { stringValue: body.overtake } },
         ]
     }).promise();
 }

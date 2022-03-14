@@ -6,7 +6,8 @@ exports.handler = async (event) => {
     const sqlParams = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        sql: 'select * from drivers',
+        sql: `select code,name,team,rank,country from drivers 
+            ORDER BY rank is NULL, rank`,
         database: DATABASE_NAME,
     };
     const result = await rdsDataService.executeStatement(sqlParams).promise();
@@ -26,10 +27,10 @@ exports.handler = async (event) => {
 
 function parseRecord(record) {
     return {
-        'id': record[0].longValue,
+        'code': record[0].stringValue,
         'name': record[1].stringValue,
         'team': record[2].stringValue,
         'rank': record[3].longValue || null,
-        'coutry': record[4].stringValue,
+        'country': record[4].stringValue,
     };
 }
