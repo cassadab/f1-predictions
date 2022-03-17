@@ -48,7 +48,7 @@ async function getPrediction(discordId: string): Promise<PredictionRecord> {
       secretArn: process.env.SECRET_ARN,
       resourceArn: process.env.CLUSTER_ARN,
       database: DATABASE_NAME,
-      sql: `SELECT * FROM predictions
+      sql: `SELECT discord, name, country, dnf, overtake FROM predictions
           WHERE discord=:discord`,
       parameters: [
           { name: 'discord', value: { stringValue: discordId } },
@@ -113,7 +113,7 @@ async function getSpecialDrivers(dnf: string, overtake: string): Promise<Special
       secretArn: process.env.SECRET_ARN,
       resourceArn: process.env.CLUSTER_ARN,
       database: DATABASE_NAME,
-      sql: `SELECT * FROM drivers
+      sql: `SELECT code, name, team, rank, country FROM drivers
           WHERE code in (:dnf, :overtake)`,
       parameters: [
           { name: 'dnf', value: { stringValue: dnf } },
