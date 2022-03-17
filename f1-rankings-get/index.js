@@ -57,7 +57,7 @@ async function getPrediction(discordId) {
 
 function parsePrediction(record) {
     return {
-        'discord_id': record[0].stringValue,
+        'discord': record[0].stringValue,
         'name': record[1].stringValue,
         'country': record[2].stringValue,
         'dnf': record[3].stringValue,
@@ -105,7 +105,7 @@ async function getSpecialDrivers(dnf, overtake) {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
         database: DATABASE_NAME,
-        sql: `SELECT * FROM drivers
+        sql: `SELECT code, name, team, rank, country FROM drivers
             WHERE code in (:dnf, :overtake)`,
         parameters: [
             { name: 'dnf', value: { stringValue: dnf } },
@@ -114,8 +114,8 @@ async function getSpecialDrivers(dnf, overtake) {
     }
     const result = await rdsDataService.executeStatement(params).promise();
     const drivers = result.records.map((record) => parseDriver(record));
-    const overtakeDriver = drivers.find((driver) => driver.code = overtake);
-    const dnfDriver = drivers.find((driver) => driver.code = dnf);
+    const overtakeDriver = drivers.find((driver) => driver.code == overtake);
+    const dnfDriver = drivers.find((driver) => driver.code == dnf);
     return {
         overtake: overtakeDriver,
         dnf: dnfDriver,
