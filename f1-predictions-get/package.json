@@ -1,7 +1,7 @@
 {
-  "name": "f1-update-scores",
+  "name": "f1-predictions-get",
   "version": "1.0.0",
-  "description": "Batch update prediction scores",
+  "description": "Get full prediction and ranking",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
