@@ -4,6 +4,7 @@ export interface PredictionRecord {
     overtake: string,
     dnf: string,
     score: number,
+    country: string,
 }
 
 export interface FullRanking {
