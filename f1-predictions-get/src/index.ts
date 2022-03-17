@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResultV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { RDSDataService, } from 'aws-sdk';
 import { ExecuteStatementRequest, FieldList } from 'aws-sdk/clients/rdsdataservice';
 import { PredictionRecord, FullRanking, Driver, SpecialDrivers } from './f1.interfaces';
@@ -8,7 +8,7 @@ const DATABASE_NAME = 'f1_predictions';
 
 export const handler = async (
   event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyStructuredResultV2> => {
 
   console.log(JSON.stringify(event));
 
