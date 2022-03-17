@@ -1,47 +1,30 @@
-const AWS = require('aws-sdk');
-const rdsDataService = new AWS.RDSDataService();
+import { AWSError, RDSDataService, } from 'aws-sdk';
+import { BeginTransactionRequest, CommitTransactionRequest, CommitTransactionResponse, ExecuteStatementRequest, FieldList } from 'aws-sdk/clients/rdsdataservice';
+import { PromiseResult } from 'aws-sdk/lib/request';
+import { PutPredictionRequest } from './predictions-put.interfaces';
+
+const rdsDataService = new RDSDataService();
 const DATABASE_NAME = 'f1_predictions';
 
-exports.handler = async (event) => {
-    const body = JSON.parse(event.body);
-    const overwrite = await predictionExists(body);
-
+async function beginTransaction(): Promise<string> {
     const transaction = await rdsDataService.beginTransaction({
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
         database: DATABASE_NAME,
-    }).promise();
+    } as BeginTransactionRequest).promise();
 
-    if (overwrite) {
-        console.log(`Prediction already exists for ${body.discord}. Overwriting`);
-        await removeRankings(body, transaction.transactionId);
-        await updatePrediction(body, transaction.transactionId);
-    } else {
-        await insertPrediction(body, transaction.transactionId);
-    }
+    return transaction.transactionId;
+}
 
-    await Promise.all(insertRankings(body, transaction.transactionId));
-
-    console.log('Commiting transaction');
-    await rdsDataService.commitTransaction({
+function commitTransaction(transactionId: string): Promise<PromiseResult<CommitTransactionResponse, AWSError>>{
+    return rdsDataService.commitTransaction({
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
-        transactionId: transaction.transactionId,
-    }).promise();
+        transactionId: transactionId,
+    } as CommitTransactionRequest).promise();
+}
 
-    const response = {
-        statusCode: 201,
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,PUT"
-        },
-        body: JSON.stringify(body),
-    };
-
-    return response;
-};
-
-async function insertPrediction(body, transactionId) {
+async function insertPrediction(body: PutPredictionRequest, transactionId: string) {
     console.log(`Inserting prediction for ${body.discord}`);
     await rdsDataService.executeStatement({
         secretArn: process.env.SECRET_ARN,
@@ -57,10 +40,10 @@ async function insertPrediction(body, transactionId) {
             { name: 'overtake', value: { stringValue: body.overtake } },
             { name: 'score', value: { longValue: 0 } },
         ]
-    }).promise();
+    } as ExecuteStatementRequest).promise();
 }
 
-function insertRankings(body, transactionId) {
+function insertRankings(body: PutPredictionRequest, transactionId: string) {
     console.log(`Inserting rankings for ${body.discord}`);
     return body.rankings.map((ranking, index) => {
         console.log(ranking);
@@ -75,11 +58,11 @@ function insertRankings(body, transactionId) {
                 { name: 'driver', value: { stringValue: ranking } },
                 { name: 'rank', value: { longValue: index + 1 } },
             ]
-        }).promise();
+        } as ExecuteStatementRequest).promise();
     });
 }
 
-async function predictionExists(body) {
+async function predictionExists(body: PutPredictionRequest): Promise<boolean> {
     const sqlParams = {
         secretArn: process.env.SECRET_ARN,
         resourceArn: process.env.CLUSTER_ARN,
@@ -88,14 +71,14 @@ async function predictionExists(body) {
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } }
         ]
-    };
+    } as ExecuteStatementRequest;
     const result = await rdsDataService.executeStatement(sqlParams).promise();
     console.log(`Predictions get: ${JSON.stringify(result)}`);
     return result.records.length > 0;
 }
 
 
-async function removeRankings(body, transactionId) {
+async function removeRankings(body: PutPredictionRequest, transactionId: string) {
     console.log(`Removing existing rankings for ${body.discord}`);
     const sqlParams = {
         secretArn: process.env.SECRET_ARN,
@@ -106,11 +89,11 @@ async function removeRankings(body, transactionId) {
         parameters: [
             { name: 'discord', value: { stringValue: body.discord } }
         ]
-    };
+    } as ExecuteStatementRequest;
     await rdsDataService.executeStatement(sqlParams).promise();
 }
 
-function updatePrediction(body, transactionId) {
+function updatePrediction(body: PutPredictionRequest, transactionId: string) {
     console.log(`Updating prediction for ${body.discord}`);
     return rdsDataService.executeStatement({
         secretArn: process.env.SECRET_ARN,
@@ -123,5 +106,15 @@ function updatePrediction(body, transactionId) {
             { name: 'dnf', value: { stringValue: body.dnf } },
             { name: 'overtake', value: { stringValue: body.overtake } },
         ]
-    }).promise();
+    } as ExecuteStatementRequest).promise();
+}
+
+export {
+    beginTransaction,
+    commitTransaction,
+    insertPrediction,
+    insertRankings,
+    predictionExists,
+    removeRankings,
+    updatePrediction,
 }

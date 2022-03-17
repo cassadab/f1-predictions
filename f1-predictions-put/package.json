@@ -1,7 +1,7 @@
 {
-  "name": "f1-drivers-get",
+  "name": "f1-predictions-put",
   "version": "1.0.0",
-  "description": "Retrieve list of all drivers",
+  "description": "Submit prediction",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
