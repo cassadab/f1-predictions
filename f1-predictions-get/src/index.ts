@@ -35,8 +35,13 @@ export const handler = async (
       prediction.overtake,
     );
 
+    const totalScore = rankings
+      .map(ranking => ranking.score)
+      .reduce((prev, curr) => prev + curr, 0);
+
     body = {
       ...prediction,
+      score: totalScore,
       dnf: specialDrivers.dnf,
       overtake: specialDrivers.overtake,
       rankings,
@@ -80,7 +85,6 @@ function parsePrediction(record: FieldList): PredictionRecord {
     country: record[2].stringValue,
     dnf: record[3].stringValue,
     overtake: record[4].stringValue,
-    score: 0,
   } as PredictionRecord;
 }
 
@@ -92,13 +96,17 @@ async function getRankings(discordId: string): Promise<FullRanking[]> {
 }
 
 function parseRanking(record: FieldList): FullRanking {
+  const predictionRank = record[0].longValue;
+  const rank = record[4].longValue;
+  const score = 0 - Math.abs(predictionRank - rank);
+
   return {
-    predictionRank: record[0].longValue,
+    predictionRank,
     driverId: record[1].stringValue,
     name: record[2].stringValue,
     team: record[3].stringValue,
-    rank: record[4].longValue || null,
     country: record[5].stringValue,
+    score,
   } as FullRanking;
 }
 
