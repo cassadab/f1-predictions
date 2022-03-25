@@ -29,9 +29,7 @@ async function beginTransaction(): Promise<string> {
   return transaction.transactionId;
 }
 
-function commitTransaction(
-  transactionId: string,
-): Promise<PromiseResult<CommitTransactionResponse, AWSError>> {
+function commitTransaction(transactionId: string): Promise<PromiseResult<CommitTransactionResponse, AWSError>> {
   console.log('Commiting transaction');
   return rdsDataService
     .commitTransaction({
@@ -75,9 +73,4 @@ function updateDriverStandings(
   return rdsDataService.batchExecuteStatement(params).promise();
 }
 
-export {
-  beginTransaction,
-  commitTransaction,
-  getDiscordIds,
-  updateDriverStandings,
-};
+export { beginTransaction, commitTransaction, getDiscordIds, updateDriverStandings };
