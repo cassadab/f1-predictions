@@ -32,6 +32,7 @@ async function beginTransaction(): Promise<string> {
 function commitTransaction(
   transactionId: string,
 ): Promise<PromiseResult<CommitTransactionResponse, AWSError>> {
+  console.log('Commiting transaction');
   return rdsDataService
     .commitTransaction({
       secretArn: process.env.SECRET_ARN,
@@ -41,7 +42,17 @@ function commitTransaction(
     .promise();
 }
 
-function updateDriverRanks(
+function getDiscordIds() {
+  const sqlParams = {
+    secretArn: process.env.SECRET_ARN,
+    resourceArn: process.env.CLUSTER_ARN,
+    sql: `select discord from predictions`,
+    database: DATABASE_NAME,
+  } as ExecuteStatementRequest;
+  return rdsDataService.executeStatement(sqlParams).promise();
+}
+
+function updateDriverStandings(
   driverRanks: Driver[],
   transactionId: string,
 ): Promise<PromiseResult<BatchExecuteStatementResponse, AWSError>> {
@@ -55,6 +66,7 @@ function updateDriverRanks(
     secretArn: process.env.SECRET_ARN,
     resourceArn: process.env.CLUSTER_ARN,
     database: DATABASE_NAME,
+    transactionId,
     sql: `update drivers set rank=:rank
         WHERE code=:code`,
     parameterSets: parameters,
@@ -63,4 +75,9 @@ function updateDriverRanks(
   return rdsDataService.batchExecuteStatement(params).promise();
 }
 
-export { beginTransaction, commitTransaction, updateDriverRanks };
+export {
+  beginTransaction,
+  commitTransaction,
+  getDiscordIds,
+  updateDriverStandings,
+};
