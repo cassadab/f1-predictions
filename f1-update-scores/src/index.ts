@@ -11,7 +11,7 @@ export const handler = async (event: any): Promise<void> => {
   console.log('Calling Ergast API');
   const drivers = await getStandings();
   console.log(`Drivers: ${JSON.stringify(drivers)}`);
-  console.log('Updating database');
+  console.log('Updating driver ranks');
   const transactionId = await beginTransaction();
   await updateDriverRanks(drivers, transactionId);
   await commitTransaction(transactionId);
