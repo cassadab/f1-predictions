@@ -1,12 +1,7 @@
 import axios from 'axios';
 import { StandingsResponse } from './ergast.interfaces';
 import { Driver } from './f1.interfaces';
-import {
-  beginTransaction,
-  commitTransaction,
-  getDiscordIds,
-  updateDriverStandings,
-} from './dbService';
+import { beginTransaction, commitTransaction, getDiscordIds, updateDriverStandings } from './dbService';
 import { Lambda } from 'aws-sdk';
 import { InvocationRequest } from 'aws-sdk/clients/lambda';
 
@@ -32,8 +27,7 @@ async function getStandings(): Promise<Driver[]> {
   const apiResult = await axios.get(url);
 
   const standingsResponse = apiResult.data as StandingsResponse;
-  const driverStandings =
-    standingsResponse.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+  const driverStandings = standingsResponse.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
   return driverStandings.map(standing => {
     return {
