@@ -6,13 +6,18 @@ module "lambda_cloudwatch" {
 }
 
 resource "aws_iam_role" "f1_drivers_get" {
-  name               = "f1_drivers_get-dev"
+  name               = "f1-drivers-get-dev"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "f1_drivers_get_cloudwatch" {
   role       = aws_iam_role.f1_drivers_get.name
   policy_arn = module.lambda_cloudwatch.policy_arn
+}
+
+resource "aws_iam_role_policy_attachment" "f1_drivers_get_vpc" {
+  role       = aws_iam_role.f1_drivers_get.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 resource "aws_lambda_function" "f1_drivers_get" {
@@ -24,4 +29,9 @@ resource "aws_lambda_function" "f1_drivers_get" {
   handler       = "index.handler"
   memory_size   = 128
   timeout       = 3
+
+  vpc_config {
+    subnet_ids         = [aws_default_subnet.default_subnet_az1.id, "subnet-934933f4"]
+    security_group_ids = [aws_default_security_group.default.id]
+  }
 }

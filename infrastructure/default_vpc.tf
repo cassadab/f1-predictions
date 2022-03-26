@@ -11,3 +11,11 @@ resource "aws_default_subnet" "default_subnet_az1" {
     Name = "Default subnet for us-east-1a"
   }
 }
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_default_vpc.default.id
+
+  tags = {
+    Name = "Default Security Group"
+  }
+}
