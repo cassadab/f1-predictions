@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "lambda_base" {
+data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -9,8 +9,19 @@ data "aws_iam_policy_document" "lambda_base" {
   }
 }
 
+data "aws_iam_policy_document" "rds_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["rds.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_policy" "f1_mysql_secret" {
-  name        = "f1-mysql-secret"
+  name        = "beeg-yoshi-f1-secret"
   description = "Allow access to F1 predictions MySQL credentials"
   policy = jsonencode({
     Version : "2012-10-17",
@@ -23,8 +34,19 @@ resource "aws_iam_policy" "f1_mysql_secret" {
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ],
-        Resource : "arn:aws:secretsmanager:us-east-1:${var.acc_number}:beeg-yoshi-f1-mysql-Ffnly4"
+        Resource : aws_secretsmanager_secret.beeg_yoshi.arn
       }
     ]
   })
+}
+
+resource "aws_iam_role" "database_proxy" {
+  name               = "beeg-yoshi-f1-db-proxy"
+  description        = "Allow RDS to create database proxies"
+  assume_role_policy = data.aws_iam_policy_document.rds_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "database_proxy_f1" {
+  role       = aws_iam_role.database_proxy.name
+  policy_arn = aws_iam_policy.f1_mysql_secret.arn
 }

@@ -7,7 +7,7 @@ module "lambda_cloudwatch" {
 
 resource "aws_iam_role" "f1_drivers_get" {
   name               = "f1_drivers_get-dev"
-  assume_role_policy = data.aws_iam_policy_document.lambda_base.json
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "f1_drivers_get_cloudwatch" {

@@ -3,3 +3,11 @@ resource "aws_default_vpc" "default" {
     Name = "Default VPC"
   }
 }
+
+resource "aws_default_subnet" "default_subnet_az1" {
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "Default subnet for us-east-1a"
+  }
+}
