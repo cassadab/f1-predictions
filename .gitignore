@@ -1,3 +1,7 @@
 dist/
 node_modules/
 build/
+.terraform/
+.terraform*
+terraform.*
+secrets.tfvars
