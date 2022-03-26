@@ -1,4 +1,7 @@
 # f1-predictions
-Back end for F1 predictions contest
+Backend for F1 predictions contest. Built with API Gateway, Lambdas and RDS (MySQL). 
+
+## Folder Structure
+Each lambda has its own top level folder. All terraform code can be found in `infrastructure/`
 
 ![Rules](https://cdn.discordapp.com/attachments/885923891455860756/953468446534934538/Frame_1.png)
