@@ -1,5 +1,16 @@
+data "aws_iam_policy_document" "lambda_base" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_policy" "f1_mysql_secret" {
-  name = "f1-mysql-secret"
+  name        = "f1-mysql-secret"
   description = "Allow access to F1 predictions MySQL credentials"
   policy = jsonencode({
     Version : "2012-10-17",
