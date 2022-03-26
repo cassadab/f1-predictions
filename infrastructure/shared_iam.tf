@@ -24,17 +24,17 @@ resource "aws_iam_policy" "f1_mysql_secret" {
   name        = "beeg-yoshi-f1-secret"
   description = "Allow access to F1 predictions MySQL credentials"
   policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [
+    Version : "2012-10-17",
+    Statement : [
       {
-        Effect: "Allow",
-        Action: [
+        Effect : "Allow",
+        Action : [
           "secretsmanager:GetResourcePolicy",
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ],
-        Resource: aws_secretsmanager_secret.beeg_yoshi.arn
+        Resource : aws_secretsmanager_secret.beeg_yoshi.arn
       }
     ]
   })
