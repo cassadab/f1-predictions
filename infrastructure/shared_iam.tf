@@ -34,7 +34,7 @@ resource "aws_iam_policy" "f1_mysql_secret" {
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ],
-        Resource : aws_secretsmanager_secret.beeg_yoshi.arn
+        Resource : aws_secretsmanager_secret.beeg_yoshi_f1.arn
       }
     ]
   })

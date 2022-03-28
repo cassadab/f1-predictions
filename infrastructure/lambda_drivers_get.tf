@@ -31,13 +31,13 @@ resource "aws_lambda_function" "f1_drivers_get" {
   timeout       = 3
 
   vpc_config {
-    subnet_ids         = [aws_default_subnet.default_subnet_az1.id, "subnet-934933f4"]
-    security_group_ids = [aws_default_security_group.default.id]
+    subnet_ids         = [aws_subnet.zone1.id]
+    security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
   }
 
   environment {
     variables = {
-      DATABASE_ENDPOINT = aws_db_proxy.beeg_yoshi_f1.endpoint
+      DATABASE_ENDPOINT = aws_db_instance.beeg_yoshi_f1.endpoint
     }
   }
 }

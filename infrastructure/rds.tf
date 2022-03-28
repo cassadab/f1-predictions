@@ -1,6 +1,5 @@
 resource "aws_db_instance" "beeg_yoshi_f1" {
-  # TODO change name
-  identifier        = "beeg-yoshi-f1-test"
+  identifier        = "beeg-yoshi-f1"
   allocated_storage = 10
   engine            = "mysql"
   engine_version    = "5.7"
@@ -10,17 +9,18 @@ resource "aws_db_instance" "beeg_yoshi_f1" {
   password          = var.db_password
 }
 
-resource "aws_secretsmanager_secret" "beeg_yoshi" {}
+resource "aws_secretsmanager_secret" "beeg_yoshi_f1" {}
 
-resource "aws_db_proxy" "beeg_yoshi_f1" {
-  name           = "beeg-yoshi-f1-proxy"
-  engine_family  = "MYSQL"
-  role_arn       = aws_iam_role.database_proxy.arn
-  require_tls    = true
-  vpc_subnet_ids = [aws_default_subnet.default_subnet_az1.id, "subnet-934933f4"]
+# resource "aws_db_proxy" "beeg_yoshi_f1" {
+#   name           = "beeg-yoshi-f1-proxy"
+#   engine_family  = "MYSQL"
+#   role_arn       = aws_iam_role.database_proxy.arn
+#   require_tls    = true
+#   vpc_subnet_ids = [aws_subnet.zone1.id]
 
-  auth {
-    iam_auth   = "REQUIRED"
-    secret_arn = aws_secretsmanager_secret.beeg_yoshi.arn
-  }
-}
+#   auth {
+#     auth_scheme = "SECRETS"
+#     iam_auth    = "REQUIRED"
+#     secret_arn  = aws_secretsmanager_secret.beeg_yoshi.arn
+#   }
+# }
