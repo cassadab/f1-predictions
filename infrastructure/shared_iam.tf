@@ -40,13 +40,15 @@ resource "aws_iam_policy" "f1_mysql_secret" {
   })
 }
 
-resource "aws_iam_role" "database_proxy" {
-  name               = "beeg-yoshi-f1-db-proxy"
-  description        = "Allow RDS to create database proxies"
-  assume_role_policy = data.aws_iam_policy_document.rds_assume_role.json
-}
+# Not using this currently
 
-resource "aws_iam_role_policy_attachment" "database_proxy_f1" {
-  role       = aws_iam_role.database_proxy.name
-  policy_arn = aws_iam_policy.f1_mysql_secret.arn
-}
+# resource "aws_iam_role" "database_proxy" {
+#   name               = "beeg-yoshi-f1-db-proxy"
+#   description        = "Allow RDS to create database proxies"
+#   assume_role_policy = data.aws_iam_policy_document.rds_assume_role.json
+# }
+
+# resource "aws_iam_role_policy_attachment" "database_proxy_f1" {
+#   role       = aws_iam_role.database_proxy.name
+#   policy_arn = aws_iam_policy.f1_mysql_secret.arn
+# }
