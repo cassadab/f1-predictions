@@ -1,40 +1,58 @@
 import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { RDSDataService } from 'aws-sdk';
-import { ExecuteStatementRequest, FieldList } from 'aws-sdk/clients/rdsdataservice';
-import { Driver } from './f1.interfaces';
+import { RDS } from 'aws-sdk';
+import { Connection, createConnection } from 'mysql2/promise';
 
-const rdsDataService = new RDSDataService();
 const DATABASE_NAME = 'f1_predictions';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
-  const sqlParams = {
-    secretArn: process.env.SECRET_ARN,
-    resourceArn: process.env.CLUSTER_ARN,
-    sql: `select code,name,team,rank,country from drivers 
-            ORDER BY rank is NULL, rank`,
-    database: DATABASE_NAME,
-  } as ExecuteStatementRequest;
-  const result = await rdsDataService.executeStatement(sqlParams).promise();
+  // Should init this outside of handler eventually I think
+  const conn = await initConnection();
 
-  const parsedRecords = result.records.map(record => parseRecord(record));
+  await conn.connect();
+  const result = await conn.query(`select * from drivers ORDER BY standing is NULL, standing`);
+  await conn.end();
+
   const response = {
     statusCode: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'OPTIONS,GET',
     },
-    body: JSON.stringify(parsedRecords),
+    body: JSON.stringify(result[0]),
   };
 
   return response;
 };
 
-function parseRecord(record: FieldList): Driver {
-  return {
-    code: record[0].stringValue,
-    name: record[1].stringValue,
-    team: record[2].stringValue,
-    rank: record[3].longValue || null,
-    country: record[4].stringValue,
-  } as Driver;
+function initConnection(): Promise<Connection> {
+  const host = process.env.DATABASE_ENDPOINT.split(':')[0];
+
+  const signer = new RDS.Signer({
+    region: 'us-east-1',
+    hostname: host,
+    port: 3306,
+    username: process.env.DATABASE_USERNAME,
+  });
+
+  const token = signer.getAuthToken({
+    username: process.env.DATABASE_USERNAME,
+  });
+
+  const connectionConfig = {
+    host,
+    user: process.env.DATABASE_USERNAME,
+    database: DATABASE_NAME,
+    port: 3306,
+    // ssl: { rejectUnauthorized: false },
+    ssl: 'Amazon RDS',
+    password: token,
+    // TODO this is deprecated, use the new stuff
+    authSwitchHandler: function(data: any, cb: any) {
+      if (data.pluginName === 'mysql_clear_password') {
+        cb(null, Buffer.from(token + '\0'));
+      }
+    },
+  };
+
+  return createConnection(connectionConfig);
 }
