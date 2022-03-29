@@ -25,11 +25,6 @@ resource "aws_iam_role_policy_attachment" "f1_drivers_get_rds" {
   policy_arn = aws_iam_policy.beeg_yoshi_rds_connect.arn
 }
 
-resource "aws_iam_role_policy_attachment" "f1_drivers_get_secret" {
-  role       = aws_iam_role.f1_drivers_get.name
-  policy_arn = aws_iam_policy.f1_mysql_secret.arn
-}
-
 resource "aws_lambda_function" "f1_drivers_get" {
   function_name = "f1-drivers-get-dev"
   filename      = "default_lambda.zip"
@@ -48,6 +43,7 @@ resource "aws_lambda_function" "f1_drivers_get" {
   environment {
     variables = {
       DATABASE_ENDPOINT = aws_db_instance.beeg_yoshi_f1.endpoint
+      DATABASE_USERNAME = var.db_lambda_user
     }
   }
 }

@@ -49,7 +49,7 @@ resource "aws_iam_policy" "beeg_yoshi_rds_connect" {
       {
         "Effect" : "Allow",
         "Action" : "rds-db:connect",
-        "Resource" : "${aws_db_instance.beeg_yoshi_f1.arn}/${var.db_user}"
+        "Resource" : "arn:aws:rds-db:${var.region}:${var.acc_number}:dbuser:${aws_db_instance.beeg_yoshi_f1.resource_id}/${var.db_lambda_user}"
       }
     ]
   })
