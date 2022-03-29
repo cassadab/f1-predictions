@@ -40,7 +40,20 @@ resource "aws_iam_policy" "f1_mysql_secret" {
   })
 }
 
-# Not using this currently
+resource "aws_iam_policy" "beeg_yoshi_rds_connect" {
+  name        = "beeg-yoshi-rds-connect"
+  description = "Allow RDS connection"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "rds-db:connect",
+        "Resource" : "${aws_db_instance.beeg_yoshi_f1.arn}/${var.db_user}"
+      }
+    ]
+  })
+}
 
 # resource "aws_iam_role" "database_proxy" {
 #   name               = "beeg-yoshi-f1-db-proxy"

@@ -45,11 +45,21 @@ resource "aws_security_group" "beeg_yoshi_f1" {
   }
 }
 
-resource "aws_security_group_rule" "beeg_yoshi_f1" {
-  type              = "ingress"
-  from_port         = 3306
-  to_port           = 3306
-  protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.beeg_yoshi_f1.cidr_block]
+resource "aws_security_group_rule" "mysql_ingress" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.beeg_yoshi_f1.id
+
   security_group_id = aws_security_group.beeg_yoshi_f1.id
+}
+
+resource "aws_security_group_rule" "mysql_egress" {
+  type                     = "egress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.beeg_yoshi_f1.id
+  security_group_id        = aws_security_group.beeg_yoshi_f1.id
 }

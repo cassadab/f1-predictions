@@ -20,6 +20,16 @@ resource "aws_iam_role_policy_attachment" "f1_drivers_get_vpc" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "f1_drivers_get_rds" {
+  role       = aws_iam_role.f1_drivers_get.name
+  policy_arn = aws_iam_policy.beeg_yoshi_rds_connect.arn
+}
+
+resource "aws_iam_role_policy_attachment" "f1_drivers_get_secret" {
+  role       = aws_iam_role.f1_drivers_get.name
+  policy_arn = aws_iam_policy.f1_mysql_secret.arn
+}
+
 resource "aws_lambda_function" "f1_drivers_get" {
   function_name = "f1-drivers-get-dev"
   filename      = "default_lambda.zip"
@@ -28,7 +38,7 @@ resource "aws_lambda_function" "f1_drivers_get" {
   runtime       = "nodejs14.x"
   handler       = "index.handler"
   memory_size   = 128
-  timeout       = 3
+  timeout       = 10
 
   vpc_config {
     subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
