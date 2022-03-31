@@ -1,4 +1,4 @@
-module "lambda" {
+module "predictions_get_lambda" {
   source = "./modules/lambda"
 
   lambda_name = "f1-predictions-get-dev"
