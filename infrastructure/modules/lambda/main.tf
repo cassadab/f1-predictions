@@ -7,9 +7,8 @@ variable "acc_number" {
   sensitive = true
 }
 
-variable "db_lambda_user" {
-  type      = string
-  sensitive = true
+variable "description" {
+  type = string
 }
 
 variable "handler" {
@@ -57,6 +56,6 @@ variable "vpc_config" {
 }
 
 output "execution_role_arn" {
-  value     = aws_iam_policy.execution_role.arn
+  value     = aws_iam_role.execution_role.arn
   sensitive = true
 }

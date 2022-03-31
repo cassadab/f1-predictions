@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 
 resource "aws_iam_role" "execution_role" {
   name_prefix        = var.lambda_name
-  assume_role_policy = aws_iam_policy_document.lambda_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch" {
@@ -20,19 +20,18 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "vpc" {
-  count      = var.vpc_required ? 1 : 0
+  count      = var.vpc_config.required ? 1 : 0
 
   role       = aws_iam_role.execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 data "aws_iam_policy" "rds_connect" {
-  # count = var.rds_required ? 1 : 0
-  name  = var.rds_config.connect_role
+  name  = var.rds_config.connect_policy
 }
 
 resource "aws_iam_role_policy_attachment" "rds_connect" {
-  count      = var.rds_required ? 1 : 0
+  count      = var.rds_config.required ? 1 : 0
   role       = aws_iam_role.execution_role.name
   policy_arn = data.aws_iam_policy.rds_connect.arn
 }

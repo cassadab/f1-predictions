@@ -26,10 +26,6 @@ resource "aws_subnet" "zone2" {
   }
 }
 
-data "aws_subnet_ids" "beeg_yoshi_f1" {
-  vpc_id = var.vpc_id
-}
-
 resource "aws_db_subnet_group" "beeg_yoshi_f1" {
   name       = "beeg-yoshi-f1"
   subnet_ids = [aws_subnet.zone1.id, aws_subnet.zone2.id]

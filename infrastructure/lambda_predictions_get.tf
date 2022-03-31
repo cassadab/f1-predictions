@@ -1,5 +1,5 @@
-module "vpc_lambda" {
-  source = "./modules/vpc_lambda"
+module "lambda" {
+  source = "./modules/lambda"
 
   lambda_name = "f1-predictions-get-dev"
   description = "Retrieve list of predictions"
@@ -14,7 +14,7 @@ module "vpc_lambda" {
   }
   vpc_config = {
     required           = true
-    subnet_ids         = aws_subnet_ids.beeg_yoshi_f1.ids
+    subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
     security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
   }
 }

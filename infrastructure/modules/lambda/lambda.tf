@@ -18,7 +18,7 @@ resource "aws_lambda_function" "lambda" {
     variables = {
       # TODO - don't set these if we dont need db
       DATABASE_ENDPOINT = var.rds_config.endpoint
-      DATABASE_USERNAME = var.db_lambda_user
+      DATABASE_USERNAME = var.rds_config.user
     }
   }
 }
