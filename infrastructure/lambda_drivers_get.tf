@@ -1,49 +1,20 @@
-module "lambda_cloudwatch" {
-  source = "./modules/lambda_cloudwatch"
+module "drivers_get_lambda" {
+  source = "./modules/lambda"
 
   lambda_name = "f1-drivers-get-dev"
+  description = "Retrieve driver standings from database"
   acc_number  = var.acc_number
-}
-
-resource "aws_iam_role" "f1_drivers_get" {
-  name               = "f1-drivers-get-dev"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
-}
-
-resource "aws_iam_role_policy_attachment" "f1_drivers_get_cloudwatch" {
-  role       = aws_iam_role.f1_drivers_get.name
-  policy_arn = module.lambda_cloudwatch.policy_arn
-}
-
-resource "aws_iam_role_policy_attachment" "f1_drivers_get_vpc" {
-  role       = aws_iam_role.f1_drivers_get.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
-
-resource "aws_iam_role_policy_attachment" "f1_drivers_get_rds" {
-  role       = aws_iam_role.f1_drivers_get.name
-  policy_arn = aws_iam_policy.beeg_yoshi_rds_connect.arn
-}
-
-resource "aws_lambda_function" "f1_drivers_get" {
-  function_name = "f1-drivers-get-dev"
-  filename      = "default_lambda.zip"
-  description   = "Retrieve driver standings from database"
-  role          = aws_iam_role.f1_drivers_get.arn
-  runtime       = "nodejs14.x"
-  handler       = "index.handler"
-  memory_size   = 128
-  timeout       = 10
-
-  vpc_config {
+  timeout     = 3
+  rds_config = {
+    required       = true
+    connect_policy = aws_iam_policy.beeg_yoshi_rds_connect.name
+    endpoint       = aws_db_instance.beeg_yoshi_f1.endpoint
+    instance_arn   = aws_db_instance.beeg_yoshi_f1.arn
+    user           = var.db_lambda_user
+  }
+  vpc_config = {
+    required           = true
     subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
     security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
-  }
-
-  environment {
-    variables = {
-      DATABASE_ENDPOINT = aws_db_instance.beeg_yoshi_f1.endpoint
-      DATABASE_USERNAME = var.db_lambda_user
-    }
   }
 }
