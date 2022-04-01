@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import {
-  beginTransaction,
-  commitTransaction,
+  initConnection,
   insertPrediction,
   insertRankings,
   predictionExists,
@@ -12,22 +11,21 @@ import { PutPredictionRequest } from './predictions-put.interfaces';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
   const body = JSON.parse(event.body) as PutPredictionRequest;
-  const overwrite = await predictionExists(body);
-
-  const transactionId = await beginTransaction();
+  const conn = await initConnection();
+  const overwrite = await predictionExists(body, conn);
 
   if (overwrite) {
     console.log(`Prediction already exists for ${body.discord}. Overwriting`);
-    await removeRankings(body, transactionId);
-    await updatePrediction(body, transactionId);
+    await removeRankings(body, conn);
+    await updatePrediction(body, conn);
   } else {
-    await insertPrediction(body, transactionId);
+    await insertPrediction(body, conn);
   }
 
-  await Promise.all(insertRankings(body, transactionId));
+  await Promise.all(insertRankings(body, conn));
 
   console.log('Commiting transaction');
-  await commitTransaction(transactionId);
+  await conn.commit();
 
   const response = {
     statusCode: 201,

@@ -1,132 +1,78 @@
-import { AWSError, RDSDataService } from 'aws-sdk';
-import {
-  BeginTransactionRequest,
-  CommitTransactionRequest,
-  CommitTransactionResponse,
-  ExecuteStatementRequest,
-  FieldList,
-} from 'aws-sdk/clients/rdsdataservice';
-import { PromiseResult } from 'aws-sdk/lib/request';
+import { Connection, createConnection, RowDataPacket } from 'mysql2/promise';
 import { PutPredictionRequest } from './predictions-put.interfaces';
+import { RDS } from 'aws-sdk';
 
-const rdsDataService = new RDSDataService();
 const DATABASE_NAME = 'f1_predictions';
 
-async function beginTransaction(): Promise<string> {
-  const transaction = await rdsDataService
-    .beginTransaction({
-      secretArn: process.env.SECRET_ARN,
-      resourceArn: process.env.CLUSTER_ARN,
-      database: DATABASE_NAME,
-    } as BeginTransactionRequest)
-    .promise();
+function initConnection(): Promise<Connection> {
+  const host = process.env.DATABASE_ENDPOINT.split(':')[0];
 
-  return transaction.transactionId;
+  const signer = new RDS.Signer({
+    region: 'us-east-1',
+    hostname: host,
+    port: 3306,
+    username: process.env.DATABASE_USERNAME,
+  });
+
+  const token = signer.getAuthToken({
+    username: process.env.DATABASE_USERNAME,
+  });
+
+  const connectionConfig = {
+    host,
+    user: process.env.DATABASE_USERNAME,
+    database: DATABASE_NAME,
+    port: 3306,
+    // ssl: { rejectUnauthorized: false },
+    ssl: 'Amazon RDS',
+    password: token,
+    // TODO this is deprecated, use the new stuff
+    authSwitchHandler: function(data: any, cb: any) {
+      if (data.pluginName === 'mysql_clear_password') {
+        cb(null, Buffer.from(token + '\0'));
+      }
+    },
+  };
+
+  return createConnection(connectionConfig);
 }
 
-function commitTransaction(transactionId: string): Promise<PromiseResult<CommitTransactionResponse, AWSError>> {
-  return rdsDataService
-    .commitTransaction({
-      secretArn: process.env.SECRET_ARN,
-      resourceArn: process.env.CLUSTER_ARN,
-      transactionId: transactionId,
-    } as CommitTransactionRequest)
-    .promise();
-}
-
-async function insertPrediction(body: PutPredictionRequest, transactionId: string) {
+function insertPrediction(body: PutPredictionRequest, conn: Connection) {
   console.log(`Inserting prediction for ${body.discord}`);
-  await rdsDataService
-    .executeStatement({
-      secretArn: process.env.SECRET_ARN,
-      resourceArn: process.env.CLUSTER_ARN,
-      database: DATABASE_NAME,
-      transactionId: transactionId,
-      sql:
-        'INSERT INTO predictions (discord,name,country,dnf,overtake,score) VALUES(:discord,:name,:country,:dnf,:overtake, :score)',
-      parameters: [
-        { name: 'discord', value: { stringValue: body.discord } },
-        { name: 'name', value: { stringValue: body.name } },
-        { name: 'country', value: { stringValue: body.country } },
-        { name: 'dnf', value: { stringValue: body.dnf } },
-        { name: 'overtake', value: { stringValue: body.overtake } },
-        { name: 'score', value: { longValue: 0 } },
-      ],
-    } as ExecuteStatementRequest)
-    .promise();
+  const sql = `INSERT INTO predictions (discord_id,name,country,dnf,overtake,score) VALUES(?,?,?,?,?, 0)`;
+  const values = [body.discord, body.name, body.country, body.dnf, body.overtake];
+  return conn.execute(sql, values);
 }
 
-function insertRankings(body: PutPredictionRequest, transactionId: string) {
+function insertRankings(body: PutPredictionRequest, conn: Connection) {
   console.log(`Inserting rankings for ${body.discord}`);
-  return body.rankings.map((ranking, index) => {
-    console.log(ranking);
-    return rdsDataService
-      .executeStatement({
-        secretArn: process.env.SECRET_ARN,
-        resourceArn: process.env.CLUSTER_ARN,
-        database: DATABASE_NAME,
-        transactionId,
-        sql: 'INSERT INTO rankings (prediction_id,driver,rank) VALUES(:prediction_id,:driver,:rank)',
-        parameters: [
-          { name: 'prediction_id', value: { stringValue: body.discord } },
-          { name: 'driver', value: { stringValue: ranking } },
-          { name: 'rank', value: { longValue: index + 1 } },
-        ],
-      } as ExecuteStatementRequest)
-      .promise();
+  return body.driverRankings.map((driverCode, index) => {
+    const sql = 'INSERT INTO rankings (prediction_id,driver,standing) VALUES(?,?,?)';
+    const values = [body.discord, driverCode, index + 1];
+    return conn.execute(sql, values);
   });
 }
 
-async function predictionExists(body: PutPredictionRequest): Promise<boolean> {
-  const sqlParams = {
-    secretArn: process.env.SECRET_ARN,
-    resourceArn: process.env.CLUSTER_ARN,
-    sql: 'SELECT discord from predictions WHERE discord=:discord',
-    database: DATABASE_NAME,
-    parameters: [{ name: 'discord', value: { stringValue: body.discord } }],
-  } as ExecuteStatementRequest;
-  const result = await rdsDataService.executeStatement(sqlParams).promise();
-  console.log(`Predictions get: ${JSON.stringify(result)}`);
-  return result.records.length > 0;
+async function predictionExists(body: PutPredictionRequest, conn: Connection): Promise<boolean> {
+  const sql = `SELECT discord_id from predictions WHERE discord_id=?`;
+  const values = [body.discord];
+  const result = await conn.execute(sql, values);
+  const records = result[0] as RowDataPacket[];
+  return records.length > 0;
 }
 
-async function removeRankings(body: PutPredictionRequest, transactionId: string) {
+function removeRankings(body: PutPredictionRequest, conn: Connection) {
   console.log(`Removing existing rankings for ${body.discord}`);
-  const sqlParams = {
-    secretArn: process.env.SECRET_ARN,
-    resourceArn: process.env.CLUSTER_ARN,
-    sql: 'DELETE FROM rankings WHERE prediction_id=:discord',
-    database: DATABASE_NAME,
-    transactionId: transactionId,
-    parameters: [{ name: 'discord', value: { stringValue: body.discord } }],
-  } as ExecuteStatementRequest;
-  await rdsDataService.executeStatement(sqlParams).promise();
+  const sql = `DELETE FROM rankings WHERE prediction_id=?`;
+  const values = [body.discord];
+  return conn.execute(sql, values);
 }
 
-function updatePrediction(body: PutPredictionRequest, transactionId: string) {
+function updatePrediction(body: PutPredictionRequest, conn: Connection) {
   console.log(`Updating prediction for ${body.discord}`);
-  return rdsDataService
-    .executeStatement({
-      secretArn: process.env.SECRET_ARN,
-      resourceArn: process.env.CLUSTER_ARN,
-      database: DATABASE_NAME,
-      transactionId,
-      sql: 'UPDATE predictions SET dnf=:dnf, overtake=:overtake WHERE discord=:discord',
-      parameters: [
-        { name: 'discord', value: { stringValue: body.discord } },
-        { name: 'dnf', value: { stringValue: body.dnf } },
-        { name: 'overtake', value: { stringValue: body.overtake } },
-      ],
-    } as ExecuteStatementRequest)
-    .promise();
+  const sql = `UPDATE predictions SET dnf=?, overtake=? WHERE discord_id=?`;
+  const values = [body.dnf, body.overtake, body.discord];
+  return conn.execute(sql, values);
 }
 
-export {
-  beginTransaction,
-  commitTransaction,
-  insertPrediction,
-  insertRankings,
-  predictionExists,
-  removeRankings,
-  updatePrediction,
-};
+export { initConnection, insertPrediction, insertRankings, predictionExists, removeRankings, updatePrediction };
