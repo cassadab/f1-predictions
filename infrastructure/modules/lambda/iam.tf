@@ -20,18 +20,14 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "vpc" {
-  count      = var.vpc_config.required ? 1 : 0
+  count = var.vpc_config.required ? 1 : 0
 
   role       = aws_iam_role.execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-data "aws_iam_policy" "rds_connect" {
-  name  = var.rds_config.connect_policy
-}
-
 resource "aws_iam_role_policy_attachment" "rds_connect" {
   count      = var.rds_config.required ? 1 : 0
   role       = aws_iam_role.execution_role.name
-  policy_arn = data.aws_iam_policy.rds_connect.arn
+  policy_arn = var.rds_config.connect_policy
 }

@@ -1,8 +1,8 @@
-module "sandbox_lambda" {
+module "calculate_scores_lambda" {
   source = "./modules/lambda"
 
-  lambda_name = "f1-sandbox"
-  description = "Retrieve list of predictions"
+  lambda_name = "f1-calculate-scores-dev"
+  description = "Calculate prediction ranks"
   acc_number  = var.acc_number
   timeout     = 10
   rds_config = {

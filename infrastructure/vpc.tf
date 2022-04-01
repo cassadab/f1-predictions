@@ -72,3 +72,31 @@ resource "aws_security_group_rule" "mysql_egress" {
   source_security_group_id = aws_security_group.beeg_yoshi_f1.id
   security_group_id        = aws_security_group.beeg_yoshi_f1.id
 }
+
+resource "aws_security_group" "public_internet" {
+  name        = "Public Internet"
+  description = "Allow traffic to/from the public internet"
+  vpc_id      = aws_vpc.beeg_yoshi_f1.id
+
+  tags = {
+    Name = "Public Internet"
+  }
+}
+
+resource "aws_security_group_rule" "inbound_internet" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.public_internet.id
+}
+
+resource "aws_security_group_rule" "outbound_internet" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.public_internet.id
+}

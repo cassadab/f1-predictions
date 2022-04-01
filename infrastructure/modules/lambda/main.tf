@@ -30,6 +30,13 @@ variable "rds_config" {
     user           = string
   })
   sensitive = true
+  default = {
+    connect_policy = ""
+    endpoint       = ""
+    instance_arn   = ""
+    required       = false
+    user           = ""
+  }
 }
 
 variable "runtime" {
@@ -53,9 +60,19 @@ variable "vpc_config" {
     subnet_ids         = list(string)
     security_group_ids = list(string)
   })
+  default = {
+    required           = false
+    security_group_ids = []
+    subnet_ids         = []
+  }
 }
 
-output "execution_role_arn" {
-  value     = aws_iam_role.execution_role.arn
+output "execution_role_name" {
+  value     = aws_iam_role.execution_role.name
+  sensitive = true
+}
+
+output "lambda_arn" {
+  value     = aws_lambda_function.lambda.arn
   sensitive = true
 }
