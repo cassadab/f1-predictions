@@ -30,6 +30,13 @@ variable "rds_config" {
     user           = string
   })
   sensitive = true
+  default = {
+    connect_policy = ""
+    endpoint       = ""
+    instance_arn   = ""
+    required       = false
+    user           = ""
+  }
 }
 
 variable "runtime" {
@@ -53,6 +60,11 @@ variable "vpc_config" {
     subnet_ids         = list(string)
     security_group_ids = list(string)
   })
+  default = {
+    required           = false
+    security_group_ids = []
+    subnet_ids         = []
+  }
 }
 
 output "execution_role_arn" {
