@@ -8,6 +8,6 @@ module "update_scores_lambda" {
 }
 
 resource "aws_iam_role_policy_attachment" "update_scores_invoke" {
-  role = module.update_scores_lambda.execution_role
-  
+  role       = module.update_scores_lambda.execution_role_name
+  policy_arn = aws_iam_policy.invoke_calculate_scores.arn
 }
