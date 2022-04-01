@@ -8,7 +8,7 @@ resource "aws_vpc" "beeg_yoshi_f1" {
 
 resource "aws_subnet" "zone1" {
   vpc_id            = aws_vpc.beeg_yoshi_f1.id
-  cidr_block        = "10.0.0.0/17"
+  cidr_block        = "10.0.0.0/18"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -18,11 +18,20 @@ resource "aws_subnet" "zone1" {
 
 resource "aws_subnet" "zone2" {
   vpc_id            = aws_vpc.beeg_yoshi_f1.id
-  cidr_block        = "10.0.128.0/17"
+  cidr_block        = "10.0.64.0/18"
   availability_zone = "us-east-1b"
 
   tags = {
     Name = "BeegYoshi-1b"
+  }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id     = aws_vpc.beeg_yoshi_f1.id
+  cidr_block = "10.0.192.0/18"
+
+  tags = {
+    Name = "BeegYoshi-Public"
   }
 }
 
