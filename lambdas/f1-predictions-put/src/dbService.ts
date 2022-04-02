@@ -46,7 +46,7 @@ function insertPrediction(body: PutPredictionRequest, conn: Connection) {
 
 function insertRankings(body: PutPredictionRequest, conn: Connection) {
   console.log(`Inserting rankings for ${body.discord}`);
-  return body.driverRankings.map((driverCode, index) => {
+  return body.rankings.map((driverCode, index) => {
     const sql = 'INSERT INTO rankings (prediction_id,driver,standing) VALUES(?,?,?)';
     const values = [body.discord, driverCode, index + 1];
     return conn.execute(sql, values);

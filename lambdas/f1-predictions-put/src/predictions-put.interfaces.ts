@@ -4,5 +4,5 @@ export interface PutPredictionRequest {
   country: string;
   dnf: string;
   overtake: string;
-  driverRankings: string[];
+  rankings: string[];
 }
