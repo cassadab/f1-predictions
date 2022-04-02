@@ -5,10 +5,14 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm build/ -rf && tsc"
+    "build": "rm build/ -rf && tsc",
+    "postbuild": "cp package.json build/package.json && cd build && npm install --only=production"
   },
   "author": "Brady Cassada",
   "license": "ISC",
+  "dependencies": {
+    "mysql2": "^2.3.3"
+  },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/aws-lambda": "^8.10.93",
