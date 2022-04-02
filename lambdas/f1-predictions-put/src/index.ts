@@ -26,6 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   console.log('Commiting transaction');
   await conn.commit();
+  await conn.end();
 
   const response = {
     statusCode: 201,

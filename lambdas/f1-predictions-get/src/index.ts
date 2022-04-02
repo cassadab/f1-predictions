@@ -29,7 +29,7 @@ function invokeScoresLambda(discordId: string) {
   };
 
   const params = {
-    FunctionName: 'f1-calculate-scores',
+    FunctionName: 'f1-calculate-scores-dev',
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(payload),
   } as InvocationRequest;
