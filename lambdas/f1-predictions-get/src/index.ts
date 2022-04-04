@@ -1,15 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { Lambda } from 'aws-sdk';
-import { InvocationRequest } from 'aws-sdk/clients/lambda';
-
-const lambda = new Lambda();
+import { getPrediction, initConnection } from './dbService';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
   console.log(JSON.stringify(event));
 
+  const conn = await initConnection();
+
   const discordId = decodeURIComponent(event.pathParameters.discordId);
 
-  const scoresResult = await invokeScoresLambda(discordId);
+  const prediction = await getPrediction(discordId, conn);
+  await conn.end();
 
   const response = {
     statusCode: 200,
@@ -17,22 +17,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'OPTIONS,GET',
     },
-    body: scoresResult.Payload.toString(),
+    body: JSON.stringify(prediction),
   } as APIGatewayProxyStructuredResultV2;
-
   return response;
 };
-
-function invokeScoresLambda(discordId: string) {
-  const payload = {
-    discordId,
-  };
-
-  const params = {
-    FunctionName: 'f1-calculate-scores-dev',
-    InvocationType: 'RequestResponse',
-    Payload: JSON.stringify(payload),
-  } as InvocationRequest;
-
-  return lambda.invoke(params).promise();
-}
