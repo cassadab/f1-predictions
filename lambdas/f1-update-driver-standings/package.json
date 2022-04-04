@@ -1,0 +1,28 @@
+{
+  "name": "f1-update-driver-standings",
+  "version": "1.0.0",
+  "description": "Update local copy of F1 standings",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm build/ -rf && tsc",
+    "postbuild": "cp package.json build/package.json && cd build && npm install --only=production"
+  },
+  "author": "Brady Cassada",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^2.3.3"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/aws-lambda": "^8.10.93",
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "aws-sdk": "^2.1095.0",
+    "eslint": "^6.8.0",
+    "prettier": "^1.9.1",
+    "prettier-eslint": "^10.1.0",
+    "typescript": "^4.6.2"
+  }
+}
