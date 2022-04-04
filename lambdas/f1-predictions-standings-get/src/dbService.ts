@@ -1,24 +1,25 @@
 import { Connection, createConnection, RowDataPacket } from 'mysql2/promise';
 import { RDS } from 'aws-sdk';
-import { Driver, FullRanking, PredictionRecord, SpecialDrivers } from './f1.interfaces';
 
 const DATABASE_NAME = 'f1_predictions';
 
-async function getPrediction(discordId: string, conn: Connection) {
-  const sql = `select p.discord_id, p.name, p.country, p.dnf, p.overtake, b.score from predictions p
-        JOIN (
-        select id, SUM(a.score) as score from 
-        (
-            select r.prediction_id as id, r.rank as prediction_rank, d.code, d.rank as driver_standing, (0 - ABS(r.rank - d.rank)) as score 
-            from rankings r
-            JOIN drivers d ON r.driver = d.code AND r.prediction_id = ?
+async function getStandings(conn: Connection) {
+  const sql = `SELECT p.name, p.country, standings.score 
+    FROM predictions p
+    JOIN (
+        SELECT id, SUM(a.score) AS score 
+        FROM (
+            SELECT r.prediction_id as id, r.rank as prediction_rank, d.code, d.rank as driver_standing, (0 - ABS(r.rank - d.rank)) AS score 
+            FROM rankings r
+            JOIN drivers d ON r.driver = d.code
         ) a
-        ) b ON p.discord_id = b.id`;
-  const values = [discordId];
+        GROUP BY id
+        ORDER BY score DESC
+    ) standings on standings.id = p.discord`;
 
-  const sqlResult = await conn.execute(sql, values);
+  const sqlResult = await conn.query(sql);
   const result = sqlResult[0] as RowDataPacket[];
-  return result[0];
+  return result;
 }
 
 function initConnection(): Promise<Connection> {
@@ -54,4 +55,4 @@ function initConnection(): Promise<Connection> {
   return createConnection(connectionConfig);
 }
 
-export { getPrediction, initConnection };
+export { getStandings, initConnection };
