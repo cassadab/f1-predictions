@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { StandingsResponse } from './ergast.interfaces';
 import { Driver } from './f1.interfaces';
-import { beginTransaction, commitTransaction, getDiscordIds, updateDriverStandings } from './dbService';
 import { Lambda } from 'aws-sdk';
 import { InvocationRequest } from 'aws-sdk/clients/lambda';
 
@@ -10,15 +9,13 @@ const lambda = new Lambda();
 export const handler = async (event: any): Promise<void> => {
   console.log('Calling Ergast API');
   const drivers = await getStandings();
-  const transactionId = await beginTransaction();
 
   console.log('Updating driver standings');
-  await updateDriverStandings(drivers, transactionId);
+  await updateDriverStandings(drivers);
 
   console.log('Updating prediction scores');
-  await updatePredictionScores(transactionId);
+  await updatePredictionScores();
 
-  await commitTransaction(transactionId);
   console.log('Update complete');
 };
 
@@ -37,27 +34,20 @@ async function getStandings(): Promise<Driver[]> {
   });
 }
 
-async function updatePredictionScores(transactionId: string) {
-  const result = await getDiscordIds();
-  const ids = result.records.map(record => record[0].stringValue);
+async function updatePredictionScores() {
+  const params = {
+    FunctionName: 'f1-update-prediction-scores',
+    InvocationType: 'RequestResponse',
+  } as InvocationRequest;
 
-  // the scores lambda updates prediction scores
-  const updatePromises = ids.map(id => invokeScoresLambda(id, transactionId));
-
-  await Promise.all(updatePromises);
+  return lambda.invoke(params).promise();
 }
 
-function invokeScoresLambda(discordId: string, transactionId: string) {
-  const payload = {
-    discordId,
-    save: true,
-    transactionId,
-  };
-
+function updateDriverStandings(standings: Driver[]) {
   const params = {
-    FunctionName: 'f1-calculate-scores',
+    FunctionName: 'f1-update-driver-standings',
     InvocationType: 'RequestResponse',
-    Payload: JSON.stringify(payload),
+    Payload: JSON.stringify(standings),
   } as InvocationRequest;
 
   return lambda.invoke(params).promise();

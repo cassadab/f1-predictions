@@ -1,7 +1,7 @@
 {
-  "name": "f1-update-scores",
+  "name": "f1-batch-update",
   "version": "1.0.0",
-  "description": "Batch update scores from F1 api",
+  "description": "Batch driver standings and prediction scores",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
