@@ -15,6 +15,6 @@ module "update_driver_standings_get_lambda" {
   vpc_config = {
     required           = true
     subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
-    security_group_ids = [aws_security_group.beeg_yoshi_f1.id, aws_security_group.public_internet.id]
+    security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
   }
 }

@@ -1,3 +1,16 @@
+export interface CalculateScoresRequest {
+  discordId: string;
+  save?: boolean;
+  transactionId?: string;
+}
+
+export interface CalculateScoresResponse {
+  score: number;
+  dnf?: Driver;
+  overtake?: Driver;
+  rankings: FullRanking[];
+}
+
 export interface PredictionRecord {
   discord: string;
   name: string;
@@ -15,6 +28,7 @@ export interface FullRanking {
   country: string;
   predictionRank: number;
   rank: number;
+  score: number;
 }
 
 export interface Driver {
