@@ -1,10 +1,10 @@
-module "drivers_get_lambda" {
+module "update_driver_standings_get_lambda" {
   source = "./modules/lambda"
 
-  lambda_name = "f1-drivers-get"
-  description = "Retrieve driver standings from database"
+  lambda_name = "f1-update-driver-standings"
+  description = "Update local copy of driver standings"
   acc_number  = var.acc_number
-  timeout     = 3
+  timeout     = 5
   rds_config = {
     required       = true
     connect_policy = aws_iam_policy.beeg_yoshi_rds_connect.arn
@@ -15,6 +15,6 @@ module "drivers_get_lambda" {
   vpc_config = {
     required           = true
     subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
-    security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
+    security_group_ids = [aws_security_group.beeg_yoshi_f1.id, aws_security_group.public_internet.id]
   }
 }
