@@ -14,8 +14,8 @@ async function getStandings(conn: Connection) {
             JOIN drivers d ON r.driver = d.code
         ) a
         GROUP BY id
-        ORDER BY score DESC
-    ) standings on standings.id = p.discord_id`;
+    ) standings on standings.id = p.discord_id
+    ORDER BY standings.score DESC`;
 
   const sqlResult = await conn.query(sql);
   const result = sqlResult[0] as RowDataPacket[];
