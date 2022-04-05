@@ -10,6 +10,6 @@ export interface Ranking {
   predictionRank: string;
   driver: string;
   country: string;
-  score: string;
+  score: number;
   driverStanding: string;
 }

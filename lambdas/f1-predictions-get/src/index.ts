@@ -12,8 +12,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const prediction = await getPrediction(discordId, conn);
   const rankings = (await getRankings(discordId, conn)) as Ranking[];
 
+  const score = rankings.reduce((prev, curr) => prev + curr.score, 0);
   const result = {
     ...prediction,
+    score,
     rankings,
   } as PredictionsGetResponse;
   await conn.end();

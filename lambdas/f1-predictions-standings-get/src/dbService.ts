@@ -4,18 +4,18 @@ import { RDS } from 'aws-sdk';
 const DATABASE_NAME = 'f1_predictions';
 
 async function getStandings(conn: Connection) {
-  const sql = `SELECT p.name, p.country, standings.score 
+  const sql = `SELECT p.discord_id AS discord, p.name, p.country, standings.score 
     FROM predictions p
     JOIN (
         SELECT id, SUM(a.score) AS score 
         FROM (
-            SELECT r.prediction_id as id, r.rank as prediction_rank, d.code, d.rank as driver_standing, (0 - ABS(r.rank - d.rank)) AS score 
+            SELECT r.prediction_id AS id, r.standing AS prediction_rank, d.code, d.standing AS driver_standing, (0 - ABS(r.standing - d.standing)) AS score 
             FROM rankings r
             JOIN drivers d ON r.driver = d.code
         ) a
         GROUP BY id
         ORDER BY score DESC
-    ) standings on standings.id = p.discord`;
+    ) standings on standings.id = p.discord_id`;
 
   const sqlResult = await conn.query(sql);
   const result = sqlResult[0] as RowDataPacket[];
