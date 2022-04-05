@@ -13,9 +13,6 @@ export const handler = async (event: any): Promise<void> => {
   console.log('Updating driver standings');
   await updateDriverStandings(drivers);
 
-  console.log('Updating prediction scores');
-  await updatePredictionScores();
-
   console.log('Update complete');
 };
 
@@ -32,15 +29,6 @@ async function getStandings(): Promise<Driver[]> {
       rank: parseInt(standing.position),
     } as Driver;
   });
-}
-
-async function updatePredictionScores() {
-  const params = {
-    FunctionName: 'f1-update-prediction-scores',
-    InvocationType: 'RequestResponse',
-  } as InvocationRequest;
-
-  return lambda.invoke(params).promise();
 }
 
 function updateDriverStandings(standings: Driver[]) {
