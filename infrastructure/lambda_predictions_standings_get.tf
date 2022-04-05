@@ -1,10 +1,10 @@
-module "predictions_get_lambda" {
+module "predictions_standings_get_lambda" {
   source = "./modules/lambda"
 
-  lambda_name = "f1-predictions-get"
-  description = "Retrieve prediction details"
+  lambda_name = "f1-predictions-standings-get"
+  description = "Get high level prediction standings"
   acc_number  = var.acc_number
-  timeout     = 10
+  timeout     = 5
   rds_config = {
     required       = true
     connect_policy = aws_iam_policy.beeg_yoshi_rds_connect.arn
@@ -15,6 +15,6 @@ module "predictions_get_lambda" {
   vpc_config = {
     required           = true
     subnet_ids         = [aws_subnet.zone1.id, aws_subnet.zone2.id]
-    security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
+    security_group_ids = [aws_security_group.beeg_yoshi_f1.id, aws_security_group.public_internet.id]
   }
 }

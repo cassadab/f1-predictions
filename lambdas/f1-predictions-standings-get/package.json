@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm build/ -rf && tsc",
+    "postbuild": "cp package.json build/package.json && cd build && npm install --only=production",
     "lint": "eslint"
   },
   "author": "Brady Cassada",
@@ -21,5 +22,8 @@
     "prettier": "^1.9.1",
     "prettier-eslint": "^10.1.0",
     "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "mysql2": "^2.3.3"
   }
 }
