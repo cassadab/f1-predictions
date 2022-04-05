@@ -10,9 +10,24 @@ resource "aws_iam_role" "update_drivers" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
+resource "aws_iam_policy" "invoke_update_drivers_standings" {
+  name_prefix = "beeg-yoshi-invoke-update-drivers-standings"
+  description = "Allow invocation of f1-update-drivers-standings lambda"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "lambda:InvokeFunction",
+        "Resource" : module.update_driver_standings_get_lambda.lambda_arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "update_drivers_invoke" {
   role       = aws_iam_role.update_drivers.name
-  policy_arn = aws_iam_policy.invoke_calculate_scores.arn
+  policy_arn = aws_iam_policy.invoke_update_drivers_standings.arn
 }
 
 resource "aws_iam_role_policy_attachment" "update_drivers_cw" {

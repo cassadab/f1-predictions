@@ -35,7 +35,7 @@ function updateDriverStandings(standings: Driver[]) {
   const params = {
     FunctionName: 'f1-update-driver-standings',
     InvocationType: 'RequestResponse',
-    Payload: JSON.stringify(standings),
+    Payload: JSON.stringify({ standings }),
   } as InvocationRequest;
 
   return lambda.invoke(params).promise();

@@ -2,8 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lam
 import { getStandings, initConnection } from './dbService';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
-  console.log(JSON.stringify(event));
-
   const conn = await initConnection();
   const standings = await getStandings(conn);
 
