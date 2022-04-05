@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { getPrediction, initConnection } from './dbService';
+import { getPrediction, getRankings, initConnection } from './dbService';
+import { PredictionsGetResponse, Ranking } from './predictions-get.interfaces';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
   console.log(JSON.stringify(event));
@@ -9,6 +10,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const discordId = decodeURIComponent(event.pathParameters.discordId);
 
   const prediction = await getPrediction(discordId, conn);
+  const rankings = (await getRankings(discordId, conn)) as Ranking[];
+
+  const result = {
+    ...prediction,
+    rankings,
+  } as PredictionsGetResponse;
   await conn.end();
 
   const response = {
@@ -17,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'OPTIONS,GET',
     },
-    body: JSON.stringify(prediction),
+    body: JSON.stringify(result),
   } as APIGatewayProxyStructuredResultV2;
   return response;
 };

@@ -1,8 +1,8 @@
 module "predictions_get_lambda" {
   source = "./modules/lambda"
 
-  lambda_name = "f1-predictions-get-dev"
-  description = "Retrieve list of predictions"
+  lambda_name = "f1-predictions-get"
+  description = "Retrieve prediction details"
   acc_number  = var.acc_number
   timeout     = 10
   rds_config = {
