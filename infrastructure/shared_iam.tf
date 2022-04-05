@@ -56,21 +56,6 @@ resource "aws_iam_policy" "beeg_yoshi_rds_connect" {
   })
 }
 
-resource "aws_iam_policy" "invoke_calculate_scores" {
-  name        = "beeg-yoshi-invoke-calulate-scores"
-  description = "Allow invocation of f1-calculate-scores lambda"
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Action" : "lambda:InvokeFunction",
-        "Resource" : module.calculate_scores_lambda.lambda_arn
-      }
-    ]
-  })
-}
-
 # resource "aws_iam_role" "database_proxy" {
 #   name               = "beeg-yoshi-f1-db-proxy"
 #   description        = "Allow RDS to create database proxies"
