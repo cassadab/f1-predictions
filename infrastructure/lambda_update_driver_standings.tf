@@ -1,8 +1,8 @@
-module "update_standings_lambda" {
+module "update_driver_standings_get_lambda" {
   source = "./modules/lambda"
 
   lambda_name = "f1-update-driver-standings"
-  description = "Update local driver standings data"
+  description = "Update local copy of driver standings"
   acc_number  = var.acc_number
   timeout     = 5
   rds_config = {

@@ -1,7 +1,7 @@
 module "drivers_get_lambda" {
   source = "./modules/lambda"
 
-  lambda_name = "f1-drivers-get-dev"
+  lambda_name = "f1-drivers-get"
   description = "Retrieve driver standings from database"
   acc_number  = var.acc_number
   timeout     = 3
