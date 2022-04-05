@@ -6,3 +6,4 @@ sandbox/
 .terraform*
 terraform.*
 secrets.tfvars
+notes.md
