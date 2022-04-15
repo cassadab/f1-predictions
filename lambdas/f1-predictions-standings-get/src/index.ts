@@ -1,11 +1,30 @@
 import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { getStandings, initConnection } from './dbService';
+import { DynamoDB } from 'aws-sdk';
+import { QueryInput } from 'aws-sdk/clients/dynamodb';
+
+const TABLE_NAME = 'beeg-yoshi-f1';
+const dynamo = new DynamoDB.DocumentClient();
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
-  const conn = await initConnection();
-  const standings = await getStandings(conn);
+  const params = {
+    TableName: TABLE_NAME,
+    IndexName: 'ScoresIndex',
+    ScanIndexForward: false,
+    KeyConditionExpression: 'pk=:pk',
+    ExpressionAttributeValues: {
+      ':pk': 'PREDICTION',
+    },
+  } as QueryInput;
 
-  await conn.end();
+  const result = await dynamo.query(params).promise();
+  const standings = result.Items.map(prediction => {
+    return {
+      discord: prediction.sk,
+      country: prediction.country,
+      name: prediction.name,
+      score: prediction.score,
+    };
+  });
 
   const response = {
     statusCode: 200,

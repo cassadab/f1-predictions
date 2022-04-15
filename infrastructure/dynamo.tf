@@ -44,7 +44,10 @@ resource "aws_iam_policy" "beeg_yoshi_dynamo_read" {
           "dynamodb:Query",
           "dynamodb:GetItem",
         ],
-        Resource : aws_dynamodb_table.beeg_yoshi_f1.arn
+        Resource : [
+          aws_dynamodb_table.beeg_yoshi_f1.arn,
+          "${aws_dynamodb_table.beeg_yoshi_f1.arn}/index/*"
+        ]
       }
     ]
   })
