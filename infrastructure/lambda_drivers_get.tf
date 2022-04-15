@@ -18,3 +18,17 @@ module "drivers_get_lambda" {
     security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
   }
 }
+
+module "drivers_get_dev_lambda" {
+  source = "./modules/lambda"
+
+  lambda_name = "f1-drivers-get-dev"
+  description = "Retrieve driver standings from database"
+  acc_number  = var.acc_number
+  timeout     = 3
+}
+
+resource "aws_iam_role_policy_attachment" "drivers_get_dev" {
+  role       = module.drivers_get_dev_lambda.execution_role_name
+  policy_arn = aws_iam_policy.beeg_yoshi_dynamo_read.arn
+}
