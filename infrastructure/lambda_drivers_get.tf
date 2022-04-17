@@ -32,3 +32,18 @@ resource "aws_iam_role_policy_attachment" "drivers_get_dev" {
   role       = module.drivers_get_dev_lambda.execution_role_name
   policy_arn = aws_iam_policy.beeg_yoshi_dynamo_read.arn
 }
+
+resource "aws_iam_policy" "drivers_get_invoke" {
+  name_prefix = "beeg-yoshi-invoke-drivers-get"
+  description = "Allow invocation of f1-drivers-get lambda"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "lambda:InvokeFunction",
+        "Resource" : module.drivers_get_dev_lambda.lambda_arn
+      }
+    ]
+  })
+}

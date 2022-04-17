@@ -18,3 +18,22 @@ module "predictions_get_lambda" {
     security_group_ids = [aws_security_group.beeg_yoshi_f1.id]
   }
 }
+
+module "predictions_get_dev_lambda" {
+  source = "./modules/lambda"
+
+  lambda_name = "f1-predictions-get-dev"
+  description = "Retrieve prediction details"
+  acc_number  = var.acc_number
+  timeout     = 3
+}
+
+resource "aws_iam_role_policy_attachment" "predictions_get_dev_dynamo" {
+  role       = module.predictions_get_dev_lambda.execution_role_name
+  policy_arn = aws_iam_policy.beeg_yoshi_dynamo_read.arn
+}
+
+resource "aws_iam_role_policy_attachment" "predictions_get_invoke_drivers_get" {
+  role       = module.predictions_get_dev_lambda.execution_role_name
+  policy_arn = aws_iam_policy.drivers_get_invoke.arn
+}
