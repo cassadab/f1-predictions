@@ -3,13 +3,21 @@ export interface PredictionsGetResponse {
   name: string;
   country: string;
   score: number;
+  dnf: string;
+  overtake: string;
   rankings: Ranking[];
 }
 
 export interface Ranking {
-  predictionRank: string;
-  driver: string;
-  country: string;
+  predictionRank: number;
+  driver: Driver;
   score: number;
-  driverStanding: string;
+}
+
+export interface Driver {
+  code: string;
+  name: string;
+  team: string;
+  rank: number;
+  country: string;
 }
