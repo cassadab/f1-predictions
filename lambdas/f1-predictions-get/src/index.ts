@@ -26,6 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const prediction = {
       discord: item.sk,
       name: item.name,
+      country: item.country,
       dnf: item.dnf,
       overtake: item.overtake,
       score: item.score,
