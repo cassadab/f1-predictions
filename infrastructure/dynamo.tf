@@ -52,3 +52,24 @@ resource "aws_iam_policy" "beeg_yoshi_dynamo_read" {
     ]
   })
 }
+
+resource "aws_iam_policy" "beeg_yoshi_dynamo_read_write" {
+  name_prefix = "beeg-yoshi-dynamo-read"
+  policy = jsonencode({
+    Version : "2012-10-17",
+    Statement : [
+      {
+        Effect : "Allow",
+        Action : [
+          "dynamodb:Query",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem"
+        ],
+        Resource : [
+          aws_dynamodb_table.beeg_yoshi_f1.arn,
+          "${aws_dynamodb_table.beeg_yoshi_f1.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
