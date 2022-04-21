@@ -32,8 +32,3 @@ resource "aws_iam_role_policy_attachment" "predictions_get_dev_dynamo" {
   role       = module.predictions_get_dev_lambda.execution_role_name
   policy_arn = aws_iam_policy.beeg_yoshi_dynamo_read.arn
 }
-
-resource "aws_iam_role_policy_attachment" "predictions_get_invoke_drivers_get" {
-  role       = module.predictions_get_dev_lambda.execution_role_name
-  policy_arn = aws_iam_policy.drivers_get_invoke.arn
-}
