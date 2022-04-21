@@ -1,7 +1,7 @@
 {
-  "name": "f1-update-driver-standings",
+  "name": "f1-update-drivers",
   "version": "1.0.0",
-  "description": "Update local copy of F1 standings",
+  "description": "Update local copy of driver standings",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +11,7 @@
   "author": "Brady Cassada",
   "license": "ISC",
   "dependencies": {
-    "mysql2": "^2.3.3"
+    "axios": "^0.26.1"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",

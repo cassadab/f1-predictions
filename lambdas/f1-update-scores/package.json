@@ -1,18 +1,14 @@
 {
-  "name": "f1-update",
+  "name": "f1-update-scores",
   "version": "1.0.0",
-  "description": "Kick off standings update process",
+  "description": "Update prediction scores",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm build/ -rf && tsc",
-    "postbuild": "cp package.json build/package.json && cd build && npm install --only=production"
+    "build": "rm build/ -rf && tsc"
   },
   "author": "Brady Cassada",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.26.1"
-  },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/aws-lambda": "^8.10.93",
