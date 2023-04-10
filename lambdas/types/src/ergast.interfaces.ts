@@ -16,6 +16,7 @@ export interface StandingsList {
 
 export interface DriverStanding {
   position: string;
+  points: string;
   Driver: ApiDriver;
 }
 

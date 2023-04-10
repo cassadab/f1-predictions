@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { StandingsResponse } from './ergast.interfaces';
-import { Driver } from './f1.interfaces';
+import { StandingsResponse } from '../../types/src';
+import { Driver } from '../../types/src';
 import { DynamoDB } from 'aws-sdk';
 import { TransactWriteItem } from 'aws-sdk/clients/dynamodb';
 
@@ -19,12 +19,14 @@ async function getStandings(): Promise<Driver[]> {
   const apiResult = await axios.get(url);
 
   const standingsResponse = apiResult.data as StandingsResponse;
-  const driverStandings = standingsResponse.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+  const driverStandings =
+    standingsResponse.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
   return driverStandings.map(standing => {
     return {
       code: standing.Driver.code,
-      rank: parseInt(standing.position),
+      score: parseInt(standing.points),
+      entityType: `DRIVER${process.env.SEASON.substring(2)}`,
     } as Driver;
   });
 }
@@ -35,15 +37,16 @@ function buildDynamoParams(standings: Driver[]): TransactWriteItem[] {
       Update: {
         TableName: TABLE_NAME,
         Key: {
-          pk: 'DRIVER',
-          sk: driver.code,
+          pk: `DRIVER|${driver.code}`,
+          sk: process.env.SEASON,
         },
-        UpdateExpression: 'SET #s = :s',
+        UpdateExpression: 'SET #s = :s, #et = :et',
         ExpressionAttributeNames: {
-          '#s': 'standing',
+          '#s': 'score',
         },
         ExpressionAttributeValues: {
-          ':s': driver.rank,
+          ':s': driver.score,
+          ':et': driver.entityType,
         },
       },
     } as TransactWriteItem;

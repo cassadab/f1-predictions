@@ -4,6 +4,6 @@ export interface Driver {
   team: string;
   score: number;
   country: string;
-  type: string;
+  entityType: string;
   season: string;
 }

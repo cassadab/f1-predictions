@@ -34,7 +34,7 @@ export const handler = async (event: any): Promise<void> => {
       team: driver.team,
       country: driver.country,
       score: 0,
-      type: 'DRIVER22',
+      entityType: 'DRIVER22',
       season: '2022',
     } as Driver;
   });
@@ -44,7 +44,7 @@ export const handler = async (event: any): Promise<void> => {
   drivers.forEach(driver => {
     const item: any = driver;
 
-    item['pk'] = driver.code;
+    item['pk'] = `DRIVER|${driver.code}`;
     delete item['code'];
 
     item['sk'] = driver.season;

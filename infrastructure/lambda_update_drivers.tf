@@ -14,7 +14,7 @@ module "update_drivers_lambda" {
 
   environment_variables = {
     "ERGAST_BASE_URL" = "http://ergast.com/api/f1"
-    "SEASON"          = "2022"
+    "SEASON"          = "2023"
     "ROUND"           = "last"
   }
   tags = {

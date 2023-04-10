@@ -23,7 +23,7 @@ resource "aws_dynamodb_table" "beeg_yoshi_f1" {
   }
 
     attribute {
-    name = "type"
+    name = "entityType"
     type = "S"
   }
 
@@ -39,7 +39,7 @@ resource "aws_dynamodb_table" "beeg_yoshi_f1" {
 
   global_secondary_index {
     name            = "TypeScoreIndex"
-    hash_key        = "type"
+    hash_key        = "entityType"
     range_key       = "score"
     write_capacity  = 5
     read_capacity   = 5
