@@ -4,7 +4,7 @@ import {
   QueryCommand,
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { Driver } from '../../types/src';
+import { Prediction } from '../../types/src';
 
 const TableName = 'beeg-yoshi-f1';
 
@@ -22,33 +22,31 @@ export const handler = async (event: any): Promise<void> => {
     Select: 'ALL_ATTRIBUTES',
     KeyConditionExpression: 'pk=:pk',
     ExpressionAttributeValues: {
-      ':pk': 'DRIVER',
+      ':pk': 'PREDICTION',
     },
   };
   const queryResult = await ddbDocClient.send(new QueryCommand(params));
 
-  const drivers = queryResult.Items.map(driver => {
+  const predictions = queryResult.Items.map(prediction => {
     return {
-      code: driver.sk,
-      name: driver.name,
-      team: driver.team,
-      country: driver.country,
-      score: 0,
-      entityType: 'DRIVER22',
+      discord: prediction.sk,
+      country: prediction.country,
+      dnf: prediction.dnf,
+      overtake: prediction.overtake,
+      rankings: prediction.rankings,
+      score: prediction.score,
       season: '2022',
-    } as Driver;
+      entityType: 'PREDICTION22',
+    } as Prediction;
   });
 
   const updatePromises: Promise<any>[] = [];
 
-  drivers.forEach(driver => {
-    const item: any = driver;
+  predictions.forEach(prediction => {
+    const item: any = prediction;
 
-    item['pk'] = `DRIVER|${driver.code}`;
-    delete item['code'];
-
-    item['sk'] = driver.season;
-    delete item['season'];
+    item['pk'] = `PREDICTION|${prediction.discord}`;
+    item['sk'] = '2022';
 
     console.log(item);
     const params = {
