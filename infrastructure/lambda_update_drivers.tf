@@ -1,13 +1,28 @@
 module "update_drivers_lambda" {
-  source = "./modules/lambda"
+  source = "terraform-aws-modules/lambda/aws"
+  version = "4.13.0"
 
-  lambda_name = "f1-update-drivers"
-  description = "Update drivers"
-  acc_number  = var.acc_number
-  timeout     = 3
+  function_name = "f1-update-drivers"
+  description   = "Update driver points"
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  role_name     = "f1-update-drivers"
+
+  create_package          = false
+  local_existing_package  = "default_lambda.zip"
+  ignore_source_code_hash = true
+
+  environment_variables = {
+    "ERGAST_BASE_URL" = "http://ergast.com/api/f1"
+    "SEASON"          = "2022"
+    "ROUND"           = "last"
+  }
+  tags = {
+    Project = "beeg-yoshi-f1"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "update_drivers_dynamo" {
-  role       = module.update_drivers_lambda.execution_role_name
+  role       = module.update_drivers_lambda.lambda_role_name
   policy_arn = aws_iam_policy.beeg_yoshi_dynamo_read_write.arn
 }
