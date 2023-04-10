@@ -22,6 +22,11 @@ resource "aws_dynamodb_table" "beeg_yoshi_f1" {
     type = "N"
   }
 
+    attribute {
+    name = "type"
+    type = "S"
+  }
+
   global_secondary_index {
     name               = "ScoresIndex"
     hash_key           = "pk"
@@ -30,6 +35,15 @@ resource "aws_dynamodb_table" "beeg_yoshi_f1" {
     read_capacity      = 5
     projection_type    = "INCLUDE"
     non_key_attributes = ["sk", "name", "country"]
+  }
+
+  global_secondary_index {
+    name            = "TypeScoreIndex"
+    hash_key        = "type"
+    range_key       = "score"
+    write_capacity  = 5
+    read_capacity   = 5
+    projection_type = "ALL"
   }
 }
 
