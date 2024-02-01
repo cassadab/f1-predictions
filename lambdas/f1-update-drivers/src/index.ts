@@ -43,6 +43,7 @@ function buildDynamoParams(standings: Driver[]): TransactWriteItem[] {
         UpdateExpression: 'SET #s = :s, #et = :et',
         ExpressionAttributeNames: {
           '#s': 'score',
+          '#et': 'entityType',
         },
         ExpressionAttributeValues: {
           ':s': driver.score,

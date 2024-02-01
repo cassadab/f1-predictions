@@ -1,5 +1,5 @@
 import { DynamoDB } from 'aws-sdk';
-import { TransactWriteItem } from 'aws-sdk/clients/dynamodb';
+import { QueryInput, TransactWriteItem } from 'aws-sdk/clients/dynamodb';
 import { Driver } from './f1.interfaces';
 
 const TABLE_NAME = 'beeg-yoshi-f1';
@@ -9,20 +9,23 @@ async function getDrivers(): Promise<Driver[]> {
   console.log('Retrieving drivers');
   const params = {
     TableName: TABLE_NAME,
-    KeyConditionExpression: 'pk=:pk',
+    IndexName: 'TypeScoreIndex',
+    KeyConditionExpression: 'entityType=:et',
     ExpressionAttributeValues: {
-      ':pk': 'DRIVER',
+      ':et': 'DRIVER23',
     },
-  };
+    ScanIndexForward: false,
+  } as QueryInput;
 
   const result = await dynamo.query(params).promise();
   if (result.Items) {
     const drivers = result.Items.map(driver => {
+      const code = driver.pk as string;
       return {
-        code: driver.sk,
+        code: code.split('|')[1],
         name: driver.name,
         team: driver.team,
-        rank: driver.standing,
+        score: driver.score,
         country: driver.country,
       } as Driver;
     });
@@ -31,20 +34,21 @@ async function getDrivers(): Promise<Driver[]> {
 }
 
 async function getPredictions() {
-  console.log('Retrieving drivers');
+  console.log('Retrieving predictions');
   const params = {
     TableName: TABLE_NAME,
-    KeyConditionExpression: 'pk=:pk',
+    IndexName: 'TypeScoreIndex',
+    KeyConditionExpression: 'entityType=:et',
     ExpressionAttributeValues: {
-      ':pk': 'PREDICTION',
+      ':et': 'PREDICTION23',
     },
-  };
+  } as QueryInput;
 
   const result = await dynamo.query(params).promise();
   if (result.Items) {
     const predictions = result.Items.map(prediction => {
       return {
-        discord: prediction.sk,
+        discord: prediction.discord,
         rankings: prediction.rankings,
       };
     });
@@ -57,8 +61,8 @@ function getUpdateParams(discord: string, score: number): TransactWriteItem {
     Update: {
       TableName: TABLE_NAME,
       Key: {
-        pk: 'PREDICTION',
-        sk: discord,
+        pk: `PREDICTION|${discord}`,
+        sk: '2023',
       },
       UpdateExpression: 'SET #s = :s',
       ExpressionAttributeNames: {
