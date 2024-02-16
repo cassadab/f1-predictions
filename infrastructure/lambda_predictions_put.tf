@@ -5,4 +5,5 @@ module "predictions_put_lambda" {
   description = "Create new prediction"
   acc_number  = var.acc_number
   timeout     = 5
+  env_vars    = {}
 }

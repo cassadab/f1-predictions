@@ -5,6 +5,9 @@ module "predictions_standings_get_dev_lambda" {
   description = "Get high level prediction standings"
   acc_number  = var.acc_number
   timeout     = 5
+  env_vars    = {
+    SEASON = var.season
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "predictions_standings_get_dev" {

@@ -5,6 +5,8 @@ module "poll_updates_lambda" {
   description = "Poll F1 API for standings updates"
   acc_number  = var.acc_number
   timeout     = 3
+  env_vars    = {}
+
 }
 
 resource "aws_iam_role_policy_attachment" "poll_updates" {

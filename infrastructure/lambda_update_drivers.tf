@@ -11,10 +11,11 @@ module "update_drivers_lambda" {
   create_package          = false
   local_existing_package  = "default_lambda.zip"
   ignore_source_code_hash = true
+  timeout                 = 5
 
   environment_variables = {
     "ERGAST_BASE_URL" = "http://ergast.com/api/f1"
-    "SEASON"          = "2023"
+    "SEASON"          = var.season
     "ROUND"           = "last"
   }
   tags = {

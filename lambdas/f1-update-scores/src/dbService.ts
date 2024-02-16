@@ -62,7 +62,7 @@ function getUpdateParams(discord: string, score: number): TransactWriteItem {
       TableName: TABLE_NAME,
       Key: {
         pk: `PREDICTION|${discord}`,
-        sk: '2023',
+        sk: process.env.SEASON,
       },
       UpdateExpression: 'SET #s = :s',
       ExpressionAttributeNames: {

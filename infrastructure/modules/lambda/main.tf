@@ -49,6 +49,10 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable "env_vars" {
+  type = map(string)
+}
+
 variable "timeout" {
   type    = number
   default = 3
