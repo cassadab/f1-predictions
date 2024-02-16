@@ -5,7 +5,7 @@ module "predictions_standings_get_dev_lambda" {
   description = "Get high level prediction standings"
   acc_number  = var.acc_number
   timeout     = 5
-  env_vars    = {
+  env_vars = {
     SEASON = var.season
   }
 }

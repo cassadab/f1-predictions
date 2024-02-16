@@ -1,5 +1,5 @@
 module "update_drivers_lambda" {
-  source = "terraform-aws-modules/lambda/aws"
+  source  = "terraform-aws-modules/lambda/aws"
   version = "4.13.0"
 
   function_name = "f1-update-drivers"

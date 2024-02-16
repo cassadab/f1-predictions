@@ -5,7 +5,7 @@ module "update_scores_lambda" {
   description = "Update scores"
   acc_number  = var.acc_number
   timeout     = 5
-  env_vars    = { 
+  env_vars = {
     SEASON = var.season
   }
 }
