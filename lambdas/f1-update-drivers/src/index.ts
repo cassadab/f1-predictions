@@ -8,6 +8,7 @@ const dynamo = new DynamoDB.DocumentClient();
 export const handler = async (event: any): Promise<void> => {
   await batchUpdate(event.standings);
   console.log('Update complete');
+  return event;
 };
 
 function buildDynamoParams(standings: Driver[]): TransactWriteItem[] {

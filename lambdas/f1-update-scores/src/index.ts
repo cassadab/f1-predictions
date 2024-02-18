@@ -1,12 +1,7 @@
-import {
-  batchUpdate,
-  getDrivers,
-  getPredictions,
-  getUpdateParams,
-} from './dbService';
+import { batchUpdate, getPredictions, getUpdateParams } from './dbService';
 
 export const handler = async (event: any): Promise<void> => {
-  const drivers = await getDrivers();
+  const drivers = event.standings;
 
   const driverMap: { [key: string]: number } = {};
 
@@ -15,7 +10,6 @@ export const handler = async (event: any): Promise<void> => {
     driverMap[drivers[i].code] = i + 1;
   }
 
-  console.log(JSON.stringify(driverMap));
   const predictions = await getPredictions();
 
   const updateParams = predictions.map(prediction => {
