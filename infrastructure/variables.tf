@@ -27,5 +27,5 @@ variable "db_lambda_user" {
 
 variable "season" {
   type    = string
-  default = "2023"
+  default = "2024"
 }
