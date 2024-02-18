@@ -16,7 +16,8 @@ export const handler = async (): Promise<PollUpdatesResponse> => {
     standingMap[driver.code] = driver.score;
   });
 
-  storedStandings.forEach((driver) => {
+  for (let i = 0; i < storedStandings.length; i++) {
+    const driver = storedStandings[i];
     if (standingMap[driver.code] !== driver.score) {
       return {
         update: true,
@@ -24,7 +25,16 @@ export const handler = async (): Promise<PollUpdatesResponse> => {
         storedStandings: storedStandings,
       } as PollUpdatesResponse
     }
-  });
+  }
+  // storedStandings.forEach((driver) => {
+  //   if (standingMap[driver.code] !== driver.score) {
+  //     return {
+  //       update: true,
+  //       standings: currentStandings,
+  //       storedStandings: storedStandings,
+  //     } as PollUpdatesResponse
+  //   }
+  // });
 
   return {
     update: false,
@@ -53,7 +63,7 @@ async function getStoredStandings(): Promise<Driver[]> {
     IndexName: 'TypeScoreIndex',
     KeyConditionExpression: 'entityType=:et',
     ExpressionAttributeValues: {
-      ':et': 'PREDICTION23',
+      ':et': `DRIVER${process.env.SEASON.substring(2)}`,
     },
     ScanIndexForward: false,
   } as QueryInput;
@@ -61,9 +71,8 @@ async function getStoredStandings(): Promise<Driver[]> {
   const result = await dynamo.query(params).promise();
   if (result.Items) {
     const drivers = result.Items.map(driver => {
-      const pk = driver.pk as string
       return {
-        code: pk.split("|")[1],
+        code: driver.pk,
         name: driver.name,
         team: driver.team,
         score: driver.score,

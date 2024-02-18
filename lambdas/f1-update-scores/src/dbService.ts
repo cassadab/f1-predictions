@@ -40,7 +40,7 @@ async function getPredictions() {
     IndexName: 'TypeScoreIndex',
     KeyConditionExpression: 'entityType=:et',
     ExpressionAttributeValues: {
-      ':et': 'PREDICTION23',
+      ':et': `PREDICTION${process.env.SEASON.substring(2)}`,
     },
   } as QueryInput;
 

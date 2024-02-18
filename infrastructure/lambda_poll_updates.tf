@@ -5,7 +5,9 @@ module "poll_updates_lambda" {
   description = "Poll F1 API for standings updates"
   acc_number  = var.acc_number
   timeout     = 3
-  env_vars    = {}
+  env_vars    = {
+    SEASON = var.season
+  }
 
 }
 

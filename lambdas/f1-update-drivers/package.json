@@ -10,9 +10,6 @@
   },
   "author": "Brady Cassada",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.26.1"
-  },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/aws-lambda": "^8.10.93",
