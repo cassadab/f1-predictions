@@ -10,9 +10,6 @@
   },
   "author": "Brady Cassada",
   "license": "ISC",
-  "dependencies": {
-    "mysql2": "^2.3.3"
-  },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/aws-lambda": "^8.10.93",
