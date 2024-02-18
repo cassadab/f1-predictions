@@ -5,6 +5,10 @@ module "predictions_get_dev_lambda" {
   description = "Retrieve prediction details"
   acc_number  = var.acc_number
   timeout     = 3
+  env_vars    = {
+    SEASON = var.season
+  }
+
 }
 
 resource "aws_iam_role_policy_attachment" "predictions_get_dev_dynamo" {

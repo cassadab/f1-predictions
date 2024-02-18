@@ -22,7 +22,7 @@ resource "aws_dynamodb_table" "beeg_yoshi_f1" {
     type = "N"
   }
 
-    attribute {
+  attribute {
     name = "entityType"
     type = "S"
   }

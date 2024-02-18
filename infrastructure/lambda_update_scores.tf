@@ -5,6 +5,9 @@ module "update_scores_lambda" {
   description = "Update scores"
   acc_number  = var.acc_number
   timeout     = 5
+  env_vars = {
+    SEASON = var.season
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "update_standings_dynamo" {
