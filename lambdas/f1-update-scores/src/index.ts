@@ -13,24 +13,26 @@ export const handler = async (event: any): Promise<void> => {
   const predictions = await getPredictions();
 
   const updateParams = predictions.map(prediction => {
-    return getUpdateParams(
-      prediction.discord,
-      calculateScore(prediction.rankings, driverMap),
-    );
+    const [score, diffs] = calculateScore(prediction.rankings, driverMap);
+    return getUpdateParams(prediction.discord, score, diffs);
   });
 
   console.log('Updating prediction scores');
   await batchUpdate(updateParams);
 };
 
+// Returns both an overall score and a map of the diff for each driver
 function calculateScore(
   rankings: string[],
   driverMap: { [key: string]: number },
-) {
-  let score = 0;
-  rankings.forEach((ranking, index) => {
-    score += 0 - Math.abs(index + 1 - driverMap[ranking]);
-  });
+): [number, { [key: string]: number }] {
+  const scoreDiffs: { [key: string]: number } = {};
 
-  return score;
+  let overallScore = 0;
+  rankings.forEach((ranking, index) => {
+    const diff = 0 - Math.abs(index + 1 - driverMap[ranking]);
+    overallScore += diff;
+    scoreDiffs[ranking] = diff;
+  });
+  return [overallScore, scoreDiffs];
 }

@@ -27,7 +27,11 @@ async function getPredictions() {
   }
 }
 
-function getUpdateParams(discord: string, score: number): TransactWriteItem {
+function getUpdateParams(
+  discord: string,
+  score: number,
+  diffs: { [key: string]: number },
+): TransactWriteItem {
   return {
     Update: {
       TableName: TABLE_NAME,
@@ -36,9 +40,10 @@ function getUpdateParams(discord: string, score: number): TransactWriteItem {
         sk: process.env.SEASON,
       },
       ConditionExpression: 'entityType = :et',
-      UpdateExpression: 'SET score = :s',
+      UpdateExpression: 'SET score = :s, diffs = :d',
       ExpressionAttributeValues: {
         ':s': score,
+        ':d': diffs,
         ':et': `PREDICTION${process.env.SEASON.substring(2)}`,
       },
     },
