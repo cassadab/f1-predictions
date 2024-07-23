@@ -1,32 +1,28 @@
-import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import {
-  initConnection,
-  insertPrediction,
-  insertRankings,
-  predictionExists,
-  removeRankings,
-  updatePrediction,
-} from './dbService';
+  APIGatewayProxyEvent,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda';
+import { upsertPrediction } from './dbService';
 import { PutPredictionRequest } from './predictions-put.interfaces';
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyStructuredResultV2> => {
+export const handler = async (
+  event: APIGatewayProxyEvent,
+): Promise<APIGatewayProxyStructuredResultV2> => {
+  console.log(event.body);
   const body = JSON.parse(event.body) as PutPredictionRequest;
-  const conn = await initConnection();
-  const overwrite = await predictionExists(body, conn);
 
-  if (overwrite) {
-    console.log(`Prediction already exists for ${body.discord}. Overwriting`);
-    await removeRankings(body, conn);
-    await updatePrediction(body, conn);
-  } else {
-    await insertPrediction(body, conn);
+  try {
+    await upsertPrediction(body);
+  } catch (error) {
+    console.log('ERR: ' + JSON.stringify(error));
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+      },
+    };
   }
-
-  await Promise.all(insertRankings(body, conn));
-
-  console.log('Commiting transaction');
-  await conn.commit();
-  await conn.end();
 
   const response = {
     statusCode: 201,

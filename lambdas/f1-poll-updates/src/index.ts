@@ -2,6 +2,7 @@ import { DynamoDB } from 'aws-sdk';
 import axios from 'axios';
 import { StandingsResponse } from './ergast.interfaces';
 import { Driver, PollUpdatesResponse } from './f1.interfaces';
+import { QueryInput } from 'aws-sdk/clients/dynamodb';
 
 const TABLE_NAME = 'beeg-yoshi-f1';
 const dynamo = new DynamoDB.DocumentClient();
@@ -9,16 +10,31 @@ const dynamo = new DynamoDB.DocumentClient();
 export const handler = async (): Promise<PollUpdatesResponse> => {
   const currentStandings = await getStandings();
   const storedStandings = await getStoredStandings();
-  storedStandings.sort((a, b) => a.rank - b.rank);
+
+  const standingMap: { [key: string]: number } = {};
+  currentStandings.forEach((driver) => {
+    standingMap[driver.code] = driver.score;
+  });
 
   for (let i = 0; i < storedStandings.length; i++) {
-    if (storedStandings[i].rank !== currentStandings[i].rank) {
+    const driver = storedStandings[i];
+    if (standingMap[driver.code] !== driver.score) {
       return {
         update: true,
         standings: currentStandings,
-      } as PollUpdatesResponse;
+        storedStandings: storedStandings,
+      } as PollUpdatesResponse
     }
   }
+  // storedStandings.forEach((driver) => {
+  //   if (standingMap[driver.code] !== driver.score) {
+  //     return {
+  //       update: true,
+  //       standings: currentStandings,
+  //       storedStandings: storedStandings,
+  //     } as PollUpdatesResponse
+  //   }
+  // });
 
   return {
     update: false,
@@ -36,7 +52,7 @@ async function getStandings(): Promise<Driver[]> {
   return driverStandings.map(standing => {
     return {
       code: standing.Driver.code,
-      rank: parseInt(standing.position),
+      score: parseInt(standing.points),
     } as Driver;
   });
 }
@@ -44,20 +60,22 @@ async function getStandings(): Promise<Driver[]> {
 async function getStoredStandings(): Promise<Driver[]> {
   const params = {
     TableName: TABLE_NAME,
-    KeyConditionExpression: 'pk=:pk',
+    IndexName: 'TypeScoreIndex',
+    KeyConditionExpression: 'entityType=:et',
     ExpressionAttributeValues: {
-      ':pk': 'DRIVER',
+      ':et': `DRIVER${process.env.SEASON.substring(2)}`,
     },
-  };
-
+    ScanIndexForward: false,
+  } as QueryInput;
+  
   const result = await dynamo.query(params).promise();
   if (result.Items) {
     const drivers = result.Items.map(driver => {
       return {
-        code: driver.sk,
+        code: driver.pk,
         name: driver.name,
         team: driver.team,
-        rank: driver.standing,
+        score: driver.score,
         country: driver.country,
       } as Driver;
     });
