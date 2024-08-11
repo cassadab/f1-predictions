@@ -41,7 +41,7 @@ variable "rds_config" {
 
 variable "runtime" {
   type    = string
-  default = "nodejs14.x"
+  default = "nodejs16.x"
 }
 
 variable "region" {
